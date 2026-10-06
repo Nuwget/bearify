@@ -104,14 +104,25 @@ window.UI = (() => {
     const alb = LIB.ALBUMS[0];
     const recent = E.store.recent.map((id) => E.byId[id]).filter(Boolean);
     view.innerHTML = `
-      <div class="mtop"><span class="mbrand">bearify<small>nuwget songs</small></span><a class="iconbtn big" href="#/search" aria-label="buscar"><svg viewBox="0 0 24 24"><path d="M10 2a8 8 0 1 0 4.9 14.3l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg></a></div>
+      <header class="mhead">
+        <span class="mbrand"><strong>bearify</strong><span>nuwget songs</span></span>
+        <input class="msearch" type="search" placeholder="Buscar músicas..." aria-label="buscar">
+      </header>
       <div class="mfeat">${thumb(E.byId[alb.tracks[0]], 'art')}
         <div><p class="mf-t">${esc(alb.title)}</p><p class="mf-s">${esc(alb.artist)} · ${alb.year} · ${alb.tracks.length} songs</p>
         <button class="btn-play" data-playalbum="${alb.id}"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Tocar</button></div></div>
-      <h2 class="sec-t">Songs</h2>
-      ${T.map((t, i) => trackRow(t, i + 1)).join('')}
-      ${recent.length ? `<h2 class="sec-t">Continue ouvindo</h2><div class="hrow">${recent.map(trackCard).join('')}</div>` : ''}
+      <p class="mtitle">Músicas</p>
+      <div class="mlist">${T.map((t, i) => mTrackRow(t, i + 1)).join('')}</div>
+      ${recent.length ? `<p class="mtitle">Continue ouvindo</p><div class="hrow">${recent.map(trackCard).join('')}</div>` : ''}
       <div class="mabout"><button class="btn-ghost" data-about>Quem é Nuwget?</button></div>`;
+  }
+
+  function mTrackRow(tr, n) {
+    return `<div class="mrow" data-play="${tr.id}" role="button" tabindex="0">
+      ${thumb(tr)}
+      <span class="mt"><b>${esc(tr.title)}</b><span>${esc(tr.artist)}</span></span>
+      <span class="md">${durations[tr.id] ? E.fmt(durations[tr.id]) : '—'}</span>
+    </div>`;
   }
 
   let searchQ = '';
@@ -120,7 +131,7 @@ window.UI = (() => {
   function vSearch() {
     view.innerHTML = `<h1 class="hello">Buscar</h1><p class="sub">Songs, artistas, álbuns e playlists do ecossistema nuwget.</p>
       <div class="searchbar"><input id="q" type="search" placeholder="O que você quer ouvir?" value="${esc(searchQ)}" aria-label="buscar"></div><div id="sres"></div>`;
-    const q = $('q'); if (!(window.FX && FX.mobile)) q.focus();
+    const q = $('q'); if (!FX.mobile) q.focus();
     q.addEventListener('input', () => { searchQ = q.value; renderSearch(); });
     q.addEventListener('keydown', (e) => { if (e.key === 'Enter') { pushQ(q.value); renderSearch(); } });
     renderSearch();
@@ -426,13 +437,15 @@ window.UI = (() => {
 
   /* ---------------- roteador ---------------- */
   function route() {
+    console.log('[UI] route hash:', location.hash);
     const h = location.hash || '#/home';
     const [, r, arg] = h.split('/');
     closeCtx();
     document.querySelectorAll('#nav a, #mnav a').forEach((a) => a.classList.toggle('on', a.dataset.r === r));
-    const M = window.FX && FX.mobile;
-    if (r === 'home' && M) mHome();
-    else if (r === 'home') vHome();
+    const isMobile = window.FX?.mobile ?? matchMedia('(max-width: 860px)').matches;
+    console.log('[UI] route:', r, 'mobile:', isMobile);
+    if (r === 'home' && isMobile) { console.log('[UI] calling mHome'); mHome(); return; }
+    if (r === 'home') vHome();
     else if (r === 'search') vSearch();
     else if (r === 'library') vLibrary();
     else if (r === 'album') vAlbum(arg);
