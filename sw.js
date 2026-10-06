@@ -1,9 +1,7 @@
-const CACHE = 'bearify-v1';
-const ASSETS = ['./','./index.html','./css/style.css','./js/app.js','./js/ui.js','./js/engine.js','./js/art.js','./js/covers.js','./js/world.js','./js/mascots.js','./js/boot.js','./js/fx.js','./data/tracks.js','./data/library.js','./manifest.webmanifest','./media/favicon.svg'];
-self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS))); });
-self.addEventListener('fetch', e => {
-  const url = new URL(e.request.url);
-  if (url.pathname.endsWith('.m4a') || url.pathname.endsWith('.mp3')) return; // no cache audio
-  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
-});
-self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))); });
+// bearify não é PWA. Este worker só existe para limpar quem instalou uma versão
+// antiga: apaga os caches e se desregistra. Nenhuma página o registra mais.
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (e) => e.waitUntil((async () => {
+  for (const k of await caches.keys()) await caches.delete(k);
+  await self.registration.unregister();
+})()));
