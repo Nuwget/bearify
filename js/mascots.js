@@ -28,8 +28,12 @@ window.Mascots = (() => {
 
   // urso ~50x56: corpo embaixo, cabeça com fones por cima
   function drawBear(secs) {
-    const c = document.getElementById('mascotBear');
-    if (!c) return;
+    for (const id of ['mascotBear', 'bootBear']) {
+      const c = document.getElementById(id);
+      if (c) paintBear(c, secs);
+    }
+  }
+  function paintBear(c, secs) {
     const g = c.getContext('2d');
     g.clearRect(0, 0, c.width, c.height);
     const bob = !reduce && L.bass > 0.42 ? 1 : 0;

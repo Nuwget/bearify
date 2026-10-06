@@ -246,6 +246,7 @@ window.UI = (() => {
 
   async function renderQualityTiers(box) {
     if (!box) return;
+    box.innerHTML = `<div class="skel skel-row"></div><div class="skel skel-row"></div><div class="skel skel-line" style="width:70%"></div>`;
     const tr = E.queue.current() || T[0];
     const sources = await E.quality.probe(tr);
     E.quality.withKbps(sources, durations[tr.id]);
@@ -296,6 +297,7 @@ window.UI = (() => {
     $('npQueue').innerHTML = `<p class="qk">Tocando agora</p>${item(cur, E.queue.idx)}<p class="qk">A seguir</p>${next.length ? next.map((id, k) => item(id, E.queue.idx + 1 + k)).join('') : '<p class="qempty">Fim da fila — ative o repeat ou o autoplay.</p>'}`;
   }
   async function renderInfo(box, tr) {
+    box.innerHTML = `<div class="skel skel-line"></div><div class="skel skel-line"></div><div class="skel skel-line" style="width:60%"></div>`;
     const sources = await E.quality.probe(tr);
     E.quality.withKbps(sources, durations[tr.id]);
     box.innerHTML = `<dl class="kv">
@@ -574,6 +576,7 @@ window.UI = (() => {
     E.bus.on('queue', renderQueue);
     E.bus.on('status', ({ status, message }) => {
       document.body.classList.toggle('playing', status === 'playing');
+      document.body.classList.toggle('loading', status === 'loading' || status === 'buffering');
       const st = $('npState');
       if (st) {
         st.textContent = status === 'loading' ? 'carregando…' : status === 'buffering' ? 'buffering…' : status === 'error' ? message || 'erro de áudio' : '';
@@ -593,6 +596,10 @@ window.UI = (() => {
   function init() {
     bind();
     renderVol();
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const b = document.getElementById('boot');
+      if (b) { b.classList.add('done'); setTimeout(() => b.remove(), 600); }
+    }));
     probeDurations();
     E.queue.set(T.map((t) => t.id), T[0].id);
     window.CURRENT = 0;
