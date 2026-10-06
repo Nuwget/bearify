@@ -24,6 +24,13 @@ window.Engine = (() => {
   /* ---------------- event bus ---------------- */
   const bus = { m: {}, on(e, f) { (this.m[e] = this.m[e] || []).push(f); }, emit(e, d) { (this.m[e] || []).forEach((f) => f(d)); } };
 
+  // iOS: sem crossfade (2º elemento sem gesto é rejeitado) e sem slider fake de volume.
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const DBG = /[#&]dbg\b/.test(location.hash);
+  const log = (...a) => { if (DBG) console.log('[BEARIFY AUDIO]', ...a); };
+  let pendingSeek = 0;
+  const effCrossfade = () => (isIOS ? 0 : store.prefs.crossfade || 0);
+
   /* ---------------- QualityManager: fontes reais ---------------- */
   // Detecta o que existe de verdade: tenta HEAD em .m4a e .mp3, mede bytes e
   // estima kbps com a duração real. Opções sem fonte ficam desativadas na UI.
@@ -46,6 +53,13 @@ window.Engine = (() => {
       return (this.cache[track.id] = out);
     },
     withKbps(sources, seconds) { sources.forEach((s) => { if (s.bytes && seconds) s.kbps = Math.round((s.bytes * 8) / seconds / 1000); }); return sources; },
+    // ordem padrão sem precisar de rede: m4a primeiro (AAC), mp3 como queda
+    guess(track) {
+      return [
+        { url: `${track.base}.m4a`, type: 'audio/mp4', ext: 'm4a', label: 'AAC', bytes: 0, kbps: 0 },
+        { url: `${track.base}.mp3`, type: 'audio/mpeg', ext: 'mp3', label: 'MP3', bytes: 0, kbps: 0 },
+      ];
+    },
     // pref auto/high -> maior kbps (ou primeira); normal/low -> menor
     pick(sources, pref) {
       const s = [...sources];
@@ -110,32 +124,63 @@ window.Engine = (() => {
     get el() { return A(); },
     get track() { return queue.current(); },
     setStatus(s, extra) { status = s; bus.emit('status', { status: s, ...extra }); },
-    async load(track, { autoplay = true, keepPos = false } = {}) {
-      const pos = keepPos ? A().currentTime : 0;
-      const prefs = store.prefs;
-      const sources = await quality.probe(track);
-      const pick = quality.pick(sources, prefs.quality === 'auto' ? 'high' : prefs.quality === 'lossless' ? 'high' : prefs.quality);
+    // Caminho crítico SÍNCRONO: src é setado na hora (dentro do gesto do usuário,
+    // exigência do Safari) e o probe de qualidade roda em background só p/ a UI.
+    load(track, { autoplay = true, keepPos = false } = {}) {
       const el = A();
+      pendingSeek = keepPos ? el.currentTime || 0 : 0;
+      const prefs = store.prefs;
+      const cached = quality.cache[track.id];
+      const base = cached || quality.guess(track);
+      const pick = cached ? quality.pick(base, prefs.quality === 'auto' ? 'high' : prefs.quality === 'lossless' ? 'high' : prefs.quality) : base[0];
       el.innerHTML = '';
-      // garante a escolhida primeiro
-      el.innerHTML = '';
-      [pick, ...sources.filter((s) => s.url !== pick.url)].forEach((s) => { const sc = document.createElement('source'); sc.src = s.url; sc.type = s.type; el.appendChild(sc); });
+      [pick, ...base.filter((x) => x.url !== pick.url)].forEach((x) => { const sc = document.createElement('source'); sc.src = x.url; sc.type = x.type; el.appendChild(sc); });
       el.load();
       this.setStatus('loading');
       window.CURRENT = T.indexOf(track);
       store.pushRecent(track.id);
       bus.emit('track', track);
-      if (pos) el.currentTime = pos;
-      // completa kbps quando a duração chegar
-      el.onloadedmetadata = () => { quality.withKbps(sources, el.duration); bus.emit('meta', { track, duration: el.duration, sources }); };
+      el.onloadedmetadata = () => {
+        const srcs = quality.cache[track.id] || base;
+        quality.withKbps(srcs, el.duration);
+        if (pendingSeek > 0 && pendingSeek < (el.duration || Infinity)) { try { el.currentTime = pendingSeek; } catch {} pendingSeek = 0; }
+        bus.emit('meta', { track, duration: el.duration, sources: srcs });
+      };
+      // probe real em background: atualiza kbps/tiers sem mexer no que toca
+      quality.probe(track).then((srcs) => {
+        quality.withKbps(srcs, el.duration || durationsHint(track));
+        if (quality.cache[track.id] === srcs) bus.emit('meta', { track, duration: el.duration || 0, sources: srcs });
+      });
       if (autoplay || wantPlay) this.play();
+      return Promise.resolve();
+    },
+    // troca de fonte (qualidade) DENTRO do gesto: síncrona, preserva posição
+    setSource(track, url, type) {
+      const el = A(), pos = el.currentTime || 0, wasPlaying = !el.paused;
+      pendingSeek = pos;
+      el.innerHTML = '';
+      const cached = quality.cache[track.id] || quality.guess(track);
+      const chosen = cached.find((x) => x.url === url) || { url, type };
+      [chosen, ...cached.filter((x) => x.url !== url)].forEach((x) => { const sc = document.createElement('source'); sc.src = x.url; sc.type = x.type; el.appendChild(sc); });
+      el.load();
+      this.setStatus('loading');
+      if (wasPlaying || wantPlay) this.play();
     },
     play() {
       wantPlay = true;
+      try { if (window.__actx && window.__actx.state === 'suspended') window.__actx.resume(); } catch {}
       const el = A();
+      if (!el.querySelector('source') && queue.current()) { this.load(queue.current(), { autoplay: true }); return; }
       if (el.readyState < 2) this.setStatus('loading');
-      el.volume = store.prefs.muted ? 0 : store.prefs.vol;
-      el.play().catch((e) => this.setStatus('error', { message: e.name }));
+      // iOS ignora audio.volume (é sempre o volume do sistema): não fingir controle
+      if (!isIOS) el.volume = store.prefs.muted ? 0 : store.prefs.vol;
+      log('play()', { src: el.currentSrc || '(ainda sem src)', readyState: el.readyState, networkState: el.networkState });
+      const r = el.play();
+      if (r && r.catch) r.catch((e) => {
+        log('play() REJEITADO', e.name, e.message, { code: el.error && el.error.code, networkState: el.networkState, readyState: el.readyState });
+        wantPlay = false;
+        this.setStatus('error', { message: e.name === 'NotAllowedError' ? 'toque em play para liberar o áudio neste dispositivo' : 'não consegui tocar (' + e.name + ')' });
+      });
     },
     pause() { wantPlay = false; A().pause(); },
     toggle() { A().paused ? this.play() : this.pause(); },
@@ -149,8 +194,8 @@ window.Engine = (() => {
       if (store.prefs.repeat === 'one' && !auto) { A().currentTime = 0; this.play(); return; }
       const t = queue.next(auto);
       if (!t) { wantPlay = false; bus.emit('status', { status: 'paused' }); return; }
-      const cf = store.prefs.crossfade;
-      if (auto && cf > 0 && !A().paused) return this._crossfade(t, cf);
+      const cf = effCrossfade();
+      if (auto && cf > 0 && !A().paused && !isIOS) return this._crossfade(t, cf);
       await this.load(t, { autoplay: wantPlay || auto });
     },
     async prev() {
@@ -188,7 +233,7 @@ window.Engine = (() => {
     el.onplaying = () => { if (!mine()) return; player.setStatus('playing'); if ('mediaSession' in navigator && queue.current()) { const t = queue.current(); navigator.mediaSession.metadata = new MediaMetadata({ title: t.title, artist: t.artist, album: t.album }); } };
     el.onpause = () => { if (!mine() || A().ended) return; player.setStatus('paused'); };
     el.oncanplay = () => { if (mine() && (status === 'loading' || status === 'buffering')) player.setStatus(A().paused ? 'paused' : 'playing'); };
-    el.onerror = () => { if (mine()) player.setStatus('error', { message: 'falha ao carregar o áudio' }); };
+    el.onerror = () => { if (!mine()) return; const e = el.error; log('ELEMENT ERROR', e && e.code, e && e.message, el.currentSrc); player.setStatus('error', { message: 'falha ao carregar o áudio (código ' + (e && e.code) + ')' }); };
     el.onended = () => {
       if (!mine()) return;
       // gapless: sem intervalo, já prepara o próximo
@@ -208,5 +253,6 @@ window.Engine = (() => {
     },
   };
 
-  return { store, bus, quality, queue, player, lyrics, byId, elements: els, fmt: (s) => { s = Math.max(0, Math.floor(isFinite(s) ? s : 0)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; } };
+  function durationsHint() { return 0; }
+  return { store, bus, quality, queue, player, lyrics, byId, elements: els, isIOS, effCrossfade, fmt: (s) => { s = Math.max(0, Math.floor(isFinite(s) ? s : 0)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; } };
 })();

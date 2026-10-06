@@ -255,7 +255,11 @@ window.UI = (() => {
   }
   function syncNP(tab) {
     const tr = E.queue.current(); if (!tr) return;
-    $('npTitle').textContent = tr.title; $('npArtist').textContent = tr.artist;
+    $('npTitle').textContent = tr.title; $('npArtist').textContent = tr.artist; $('npAlbum').textContent = tr.album;
+    const srcs = E.quality.cache[tr.id];
+    $('npQuality').textContent = srcs && srcs[0].kbps ? `${srcs[0].label} · ~${srcs[0].kbps} kbps` : 'fonte local';
+    const on = E.store.isLiked(tr.id);
+    $('npFav').classList.toggle('loved', on); $('npFav').setAttribute('aria-pressed', String(on));
     const active = tab || document.querySelector('.np-tabs button.on')?.dataset.tab || 'lyrics';
     $('npLyrics').hidden = active !== 'lyrics'; $('npQueue').hidden = active !== 'queue'; $('npInfo').hidden = active !== 'info';
     if (active === 'lyrics') { $('npLyrics').innerHTML = lyricsHtml(tr); paintLyrics(E.player.el.currentTime || 0); }
@@ -263,7 +267,9 @@ window.UI = (() => {
     if (active === 'info') renderInfo($('npInfo'), tr);
   }
   function renderNPQueue() {
-    $('npQueue').innerHTML = E.queue.order.map((id, i) => { const t = E.byId[id]; return `<div class="qitem ${i === E.queue.idx ? 'cur' : ''}" data-playq="${i}">${thumb(t)}<span class="qt"><b>${esc(t.title)}</b><span>${esc(t.artist)}</span></span></div>`; }).join('');
+    const cur = E.queue.order[E.queue.idx], next = E.queue.order.slice(E.queue.idx + 1, E.queue.idx + 6);
+    const item = (id, i) => { const t = E.byId[id]; return `<div class="qitem ${i === E.queue.idx ? 'cur' : ''}" data-playq="${i}">${thumb(t)}<span class="qt"><b>${esc(t.title)}</b><span>${esc(t.artist)}</span></span></div>`; };
+    $('npQueue').innerHTML = `<p class="qk">Tocando agora</p>${item(cur, E.queue.idx)}<p class="qk">A seguir</p>${next.length ? next.map((id, k) => item(id, E.queue.idx + 1 + k)).join('') : '<p class="qempty">Fim da fila — ative o repeat ou o autoplay.</p>'}`;
   }
   async function renderInfo(box, tr) {
     const sources = await E.quality.probe(tr);
@@ -409,10 +415,24 @@ window.UI = (() => {
     if (!lp.querySelector('.dot') && p.repeat === 'all') { const d = document.createElement('span'); d.className = 'dot'; lp.appendChild(d); }
     const on = E.store.isLiked(tr.id);
     $('btnFav').classList.toggle('loved', on); $('btnFav').setAttribute('aria-pressed', String(on));
-    $('vol').value = (p.muted ? 0 : p.vol) * 100;
+    const v = document.querySelector('.vol-row #vol'); if (v) v.value = (p.muted ? 0 : p.vol) * 100;
+    const nv = $('npVol'); if (nv && document.activeElement !== nv) nv.value = p.vol * 100;
+    $('npShuffle').setAttribute('aria-pressed', String(p.shuffle));
+    $('npLoop').setAttribute('aria-pressed', String(p.repeat !== 'off'));
     setGlow(idx(tr.id));
   }
 
+  function renderVol() {
+    const w = $('npVolWrap'); if (!w) return;
+    if (E.isIOS) {
+      w.innerHTML = `<p class="vol-note">Volume do sistema — use os botões do iPhone 🔊</p>`;
+      const dv = document.querySelector('.vol-row #vol'); if (dv) dv.outerHTML = `<span class="vol-note">volume: botões do iPhone</span>`;
+    } else {
+      const p = E.store.prefs;
+      w.innerHTML = `<span class="vol-ic">🔈</span><input id="npVol" type="range" min="0" max="100" value="${Math.round(p.vol * 100)}" aria-label="volume do bearify"><span class="vol-ic">🔊</span>`;
+      $('npVol').addEventListener('input', (e) => E.player.setVolume(e.target.value / 100));
+    }
+  }
   function onTick(el) {
     const d = el.duration || durations[E.queue.current()?.id] || 0, ct = el.currentTime || 0;
     const frac = d ? ct / d : 0;
@@ -420,9 +440,10 @@ window.UI = (() => {
     $('seekFill').style.width = frac * 100 + '%';
     $('seekHead').style.left = frac * 100 + '%';
     $('tCur').textContent = fmt(ct); $('tDur').textContent = fmt(d);
+    const ns = $('npSeek'); if (ns && !$('np').hidden) { ns.value = frac * 1000; $('npSeekFill').style.width = frac * 100 + '%'; $('npSeekHead').style.left = frac * 100 + '%'; $('npCur').textContent = fmt(ct); $('npDur').textContent = fmt(d); }
     paintLyrics(ct);
-    // crossfade: agenda a troca antes do fim
-    const cf = E.store.prefs.crossfade;
+    // crossfade: agenda a troca antes do fim (desligado no iOS)
+    const cf = E.effCrossfade();
     if (cf > 0 && d && d - ct < cf && d - ct > 0.2 && !el.paused && !onTick._cf) { onTick._cf = true; E.player.next(true).finally(() => (onTick._cf = false)); }
     // capa grande do now playing
     const np = $('npCover');
@@ -464,8 +485,10 @@ window.UI = (() => {
       else if (q('[data-addplnew]')) { const name = prompt('Nome da playlist:'); if (!name) return; const ups = userPlaylists(); const id = 'user-' + Date.now(); ups.push({ id, name, desc: 'Criada por você.', tracks: [$('modal').dataset.track] }); E.store.savePlaylists(ups); closeModal(); toast('Adicionada à playlist'); }
       else if ((m = q('[data-q]'))) {
         const p = E.store.prefs; p.quality = m.dataset.q; E.store.prefs = p;
-        const pos = E.player.el.currentTime, wasPlaying = !E.player.el.paused;
-        await E.player.load(E.queue.current(), { autoplay: wasPlaying, keepPos: true }).then(() => { E.player.el.currentTime = pos; });
+        const tr = E.queue.current();
+        const srcs = E.quality.cache[tr.id] || E.quality.guess(tr);
+        const pick = E.quality.pick(srcs, p.quality === 'auto' ? 'high' : p.quality === 'lossless' ? 'high' : p.quality);
+        E.player.setSource(tr, pick.url, pick.type);
         closeModal(); renderQualityTiers($('qTiers')); toast('Qualidade: ' + m.dataset.q);
       }
       else if ((m = q('[data-xf]'))) { const p = E.store.prefs; p.crossfade = +m.dataset.xf; E.store.prefs = p; vSettings(); toast('Crossfade: ' + (p.crossfade ? p.crossfade + 's' : 'off')); }
@@ -499,6 +522,16 @@ window.UI = (() => {
     $('btnMute').addEventListener('click', () => { toast(E.player.toggleMute() ? 'Mudo' : 'Som on'); });
     $('vol').addEventListener('input', () => E.player.setVolume($('vol').value / 100));
     $('btnFav').addEventListener('click', () => { const tr = E.queue.current(); if (tr) { const on = E.store.toggleLike(tr.id); toast(on ? 'Adicionada aos favoritos 💚' : 'Removida dos favoritos'); refreshLikes(); } });
+    $('npPlay').addEventListener('click', () => E.player.toggle());
+    $('npNext').addEventListener('click', () => E.player.next());
+    $('npPrev').addEventListener('click', () => E.player.prev());
+    $('npShuffle').addEventListener('click', () => { toast(E.player.toggleShuffle() ? 'Aleatório on' : 'Aleatório off'); syncDock(); });
+    $('npLoop').addEventListener('click', () => { toast('Repetir: ' + E.player.cycleRepeat()); syncDock(); });
+    $('npFav').addEventListener('click', () => { const tr = E.queue.current(); if (tr) { const on = E.store.toggleLike(tr.id); toast(on ? 'Adicionada aos favoritos 💚' : 'Removida dos favoritos'); refreshLikes(); if (!$('np').hidden) syncNP(); } });
+    $('npSeek').addEventListener('input', () => E.player.seek($('npSeek').value / 1000));
+    $('mPlay').addEventListener('click', (e) => { e.stopPropagation(); E.player.toggle(); });
+    $('mNext').addEventListener('click', (e) => { e.stopPropagation(); E.player.next(); });
+    $('miniNow').addEventListener('click', () => openNP('lyrics'));
     $('btnQueue').addEventListener('click', () => { renderQueue(); $('queueDrawer').hidden = false; });
     $('queueClose').addEventListener('click', () => ($('queueDrawer').hidden = true));
     $('btnLyrics').addEventListener('click', () => openNP('lyrics'));
@@ -509,7 +542,7 @@ window.UI = (() => {
     $('nowTitle').addEventListener('click', () => openNP());
     $('npClose').addEventListener('click', () => ($('np').hidden = true));
     $('npMore').addEventListener('click', (e) => { const r = e.target.getBoundingClientRect(); openCtx(r.left - 200, r.bottom + 6, E.queue.current()); });
-    document.querySelectorAll('.np-tabs button').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('.np-tabs button').forEach((x) => x.classList.toggle('on', x === b)); syncNP(b.dataset.tab); }));
+    document.querySelectorAll('.np-tabs button').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('.np-tabs button').forEach((x) => x.classList.toggle('on', x === b)); $('np').classList.toggle('lyr', b.dataset.tab === 'lyrics'); syncNP(b.dataset.tab); }));
     $('npArtist').addEventListener('click', () => { $('np').hidden = true; location.hash = '#/artist/' + E.queue.current().artistId; });
     // engine events
     E.bus.on('track', () => { syncDock(); syncQuality(); renderQueue(); if (!$('np').hidden) syncNP(); });
@@ -529,6 +562,7 @@ window.UI = (() => {
 
   function init() {
     bind();
+    renderVol();
     probeDurations();
     E.queue.set(T.map((t) => t.id), T[0].id);
     window.CURRENT = 0;
