@@ -3,88 +3,111 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Bearify</title>
-<meta name="theme-color" content="#04061a">
+<title>bearify</title>
+<meta name="theme-color" content="#121212">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<canvas id="scene" aria-label="uma janela à noite com chuva, o urso de fones no parapeito"></canvas>
+<canvas id="scene" aria-hidden="true"></canvas>
 
-<header class="top">
-  <span class="brand"></span>
-  <span class="top-r">
-    <span class="hint" id="hint">clique no céu</span>
-    <button id="btnFs" class="bare" type="button" aria-label="tela cheia">
-      <svg viewBox="0 0 11 11" shape-rendering="crispEdges"><path d="M0 0h4v1H0zM0 1h1v3H0zM7 0h4v1H7zM10 1h1v3h-1zM0 7h1v3H0zM0 10h4v1H0zM10 7h1v3h-1zM7 10h4v1H7z"/></svg>
-    </button>
-  </span>
-</header>
-
-<h1 class="title" id="title" aria-label="Bearify"></h1>
-
-<section class="dock" id="dock" aria-label="player">
-  <div class="dock-row">
-    <div class="meta">
-      <div class="cover-wrap"><canvas class="cover" id="coverCanvas" width="32" height="32" aria-hidden="true"></canvas></div>
-      <div class="meta-t">
-        <p class="k">track</p>
-        <p class="t">Bearify</p>
-        <p class="s"><canvas class="eq" id="eq" width="14" height="7" aria-hidden="true"></canvas><span id="sub">pausado</span></p>
-      </div>
+<div class="app">
+  <aside class="side">
+    <nav class="nav">
+      <a class="on" href="#"><svg viewBox="0 0 24 24"><path d="M12 3 3 10.5h2.5V21h13V10.5H21z"/></svg> Início</a>
+      <a href="#"><svg viewBox="0 0 24 24"><path d="M10 2a8 8 0 1 0 4.9 14.3l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg> Buscar</a>
+      <a href="#"><svg viewBox="0 0 24 24"><path d="M4 3h3v18H4zM10 3h3v18h-3zm5 2h3l3 16h-3z"/></svg> Sua Biblioteca</a>
+    </nav>
+    <div class="libs">
+      <p class="lib-t">Playlists</p>
+      <a class="pl on" href="#">bearify sessions</a>
+      <a class="pl" href="#">chuvinha</a>
+      <a class="pl" href="#">noite de estudos</a>
     </div>
+  </aside>
+
+  <main class="main">
+    <header class="top">
+      <span class="logo">bearify</span>
+      <span class="top-r">
+        <input class="search" type="search" placeholder="Buscar músicas, artistas..." aria-label="buscar">
+        <button id="btnFs" class="bare" type="button" aria-label="tela cheia">
+          <svg viewBox="0 0 11 11" shape-rendering="crispEdges"><path d="M0 0h4v1H0zM0 1h1v3H0zM7 0h4v1H7zM10 1h1v3h-1zM0 7h1v3H0zM0 10h4v1H0zM10 7h1v3h-1zM7 10h4v1H7z"/></svg>
+        </button>
+      </span>
+    </header>
+
+    <h1 class="hello">Boa noite 🐻</h1>
+
+    <section class="cards">
+      <a class="card" href="#" data-play-first>
+        <span class="art"></span>
+        <span class="card-t">bearify sessions</span>
+      </a>
+      <a class="card" href="#">
+        <span class="art alt"></span>
+        <span class="card-t">chuvinha</span>
+      </a>
+      <a class="card" href="#">
+        <span class="art alt2"></span>
+        <span class="card-t">noite de estudos</span>
+      </a>
+    </section>
+
+    <h2 class="sec-t">bearify sessions</h2>
+    <table class="tracks" id="trackList" aria-label="faixas">
+      <thead><tr><th>#</th><th>Título</th><th>Álbum</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </main>
+</div>
+
+<footer class="dock" id="dock" aria-label="player">
+  <div class="now">
+    <canvas class="cover" id="coverCanvas" width="64" height="64" aria-hidden="true"></canvas>
+    <div class="now-t">
+      <p class="t" id="nowTitle">—</p>
+      <p class="s" id="nowArtist">—</p>
+    </div>
+  </div>
+  <div class="center">
     <div class="transport">
-      <button id="btnLoop" class="bare sm" type="button" aria-label="repetir" aria-pressed="false">
-        <svg viewBox="0 0 11 9" shape-rendering="crispEdges"><path d="M2 1h6v1H2zM7 0h1v3H7zM8 1h1v1H8zM9 2h1v4H9zM1 2h1v5H1zM4 7h5v1H4zM3 6h1v3H3zM2 7h1v1H2z"/></svg>
+      <button id="btnLoop" class="bare" type="button" aria-label="repetir" aria-pressed="false">
+        <svg viewBox="0 0 11 9"><path d="M2 1h6v1H2zM7 0h1v3H7zM8 1h1v1H8zM9 2h1v4H9zM1 2h1v5H1zM4 7h5v1H4zM3 6h1v3H3zM2 7h1v1H2z"/></svg>
       </button>
       <button id="btnBack" class="bare" type="button" aria-label="voltar 10 segundos">
-        <svg viewBox="0 0 10 9" shape-rendering="crispEdges"><path d="M0 4h1v1H0zM1 3h1v3H1zM2 2h1v5H2zM3 1h1v7H3zM4 0h1v9H4zM5 4h1v1H5zM6 3h1v3H6zM7 2h1v5H7zM8 1h1v7H8zM9 0h1v9H9z"/></svg>
+        <svg viewBox="0 0 10 9"><path d="M0 4h1v1H0zM1 3h1v3H1zM2 2h1v5H2zM3 1h1v7H3zM4 0h1v9H4zM5 4h1v1H5zM6 3h1v3H6zM7 2h1v5H7zM8 1h1v7H8zM9 0h1v9H9z"/></svg>
       </button>
       <button id="btnPlay" class="play" type="button" aria-label="tocar">
-        <svg class="i-play" viewBox="0 0 7 9" shape-rendering="crispEdges"><path d="M1 0h1v9H1zM2 1h1v7H2zM3 2h1v5H3zM4 3h1v3H4zM5 4h1v1H5z"/></svg>
-        <svg class="i-pause" viewBox="0 0 8 9" shape-rendering="crispEdges"><path d="M1 0h2v9H1zM5 0h2v9H5z"/></svg>
+        <svg class="i-play" viewBox="0 0 7 9"><path d="M1 0h1v9H1zM2 1h1v7H2zM3 2h1v5H3zM4 3h1v3H4zM5 4h1v1H5z"/></svg>
+        <svg class="i-pause" viewBox="0 0 8 9"><path d="M1 0h2v9H1zM5 0h2v9H5z"/></svg>
       </button>
       <button id="btnFwd" class="bare" type="button" aria-label="avançar 10 segundos">
-        <svg viewBox="0 0 10 9" shape-rendering="crispEdges"><path d="M0 0h1v9H0zM1 1h1v7H1zM2 2h1v5H2zM3 3h1v3H3zM4 4h1v1H4zM5 0h1v9H5zM6 1h1v7H6zM7 2h1v5H7zM8 3h1v3H8zM9 4h1v1H9z"/></svg>
+        <svg viewBox="0 0 10 9"><path d="M0 0h1v9H0zM1 1h1v7H1zM2 2h1v5H2zM3 3h1v3H3zM4 4h1v1H4zM5 0h1v9H5zM6 1h1v7H6zM7 2h1v5H7zM8 3h1v3H8zM9 4h1v1H9z"/></svg>
       </button>
-      <label class="vol" title="volume">
-        <svg viewBox="0 0 11 9" shape-rendering="crispEdges"><path d="M0 3h2v3H0zM2 2h1v5H2zM3 1h1v7H3zM4 0h1v9H4zM6 3h1v3H6zM8 2h1v1H8zM9 3h1v3H9zM8 6h1v1H8z"/></svg>
-        <input id="vol" type="range" min="0" max="100" value="85" aria-label="volume">
-      </label>
+    </div>
+    <div class="seek-row">
+      <span id="tCur" class="time">0:00</span>
+      <input id="seek" type="range" min="0" max="1000" value="0" aria-label="posição da música">
+      <span id="tDur" class="time">0:00</span>
     </div>
   </div>
-  <div class="wave-row">
-    <span id="tCur" class="time">0:00</span>
-    <div class="wave-wrap">
-      <canvas id="wave" aria-hidden="true"></canvas>
-      <input id="seek" type="range" min="0" max="1000" value="0" step="1" aria-label="posição da música">
-    </div>
-    <span id="tDur" class="time">0:00</span>
+  <div class="vol-row">
+    <canvas class="eq" id="eq" width="14" height="7" aria-hidden="true"></canvas>
+    <svg class="vol-i" viewBox="0 0 11 9"><path d="M0 3h2v3H0zM2 2h1v5H2zM3 1h1v7H3zM4 0h1v9H4zM6 3h1v3H6zM8 2h1v1H8zM9 3h1v3H9zM8 6h1v1H8z"/></svg>
+    <input id="vol" type="range" min="0" max="100" value="85" aria-label="volume">
   </div>
-</section>
+</footer>
 
 <div id="sabProbe" aria-hidden="true"></div>
 <div class="toast" id="toast" role="status"></div>
 
-<div class="gate" id="gate">
-  <div class="gate-in">
-    <p class="eyebrow">use fones de ouvido</p>
-    <h1>Bearify</h1>
-    <button id="gateBtn" type="button" aria-label="entrar">
-      <svg viewBox="0 0 7 9" shape-rendering="crispEdges"><path d="M1 0h1v9H1zM2 1h1v7H2zM3 2h1v5H3zM4 3h1v3H4zM5 4h1v1H5z"/></svg>
-    </button>
-    <p class="enter">entrar</p>
-  </div>
-</div>
+<audio id="audio" preload="auto" playsinline></audio>
 
-<audio id="audio" preload="auto" playsinline>
-  <source src="media/track.m4a" type='audio/mp4; codecs="opus"'>
-  <source src="media/track.mp3" type="audio/mpeg">
-</audio>
-
+<script src="data/tracks.js"></script>
 <script src="js/art.js"></script>
 <script src="js/world.js"></script>
 <script src="js/app.js"></script>
