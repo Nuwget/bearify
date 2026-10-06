@@ -284,7 +284,10 @@ canvas.cov { image-rendering: pixelated; display: block; }
 .fhero .fmeta { position: relative; min-width: 0; }
 .fhero .fk { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); font-weight: 800; }
 .fhero h2 { font-size: clamp(30px, 4vw, 46px); font-weight: 900; letter-spacing: -.03em; line-height: 1.02; margin: 6px 0; }
-.fhero .fm { color: #d9d3f2; font-size: 14px; margin-bottom: 16px; }
+.fhero .fm { color: #d9d3f2; font-size: 14px; margin-bottom: 6px; }
+.fhero .tagline { display: block; margin-bottom: 20px; }
+.fhero .actions { gap: 12px; }
+.btn-play, .btn-ghost { min-height: 44px; display: inline-flex; align-items: center; }
 
 /* cards maiores, menos glass */
 .hrow { grid-auto-columns: 190px; gap: 16px; }
@@ -513,3 +516,31 @@ body.playing .np-artwrap canvas { box-shadow: 0 30px 90px rgba(0,0,0,.65), 0 0 7
   .np-artwrap canvas { max-width: 300px; }
   .play.xl { width: 60px; height: 60px; }
 }
+
+/* ============ bearify loading language: urso + pixel bar ============ */
+#boot { position: fixed; inset: 0; z-index: 100; background: var(--bg); display: grid; place-content: center; justify-items: center; gap: 12px; transition: opacity .45s ease; }
+#boot.done { opacity: 0; pointer-events: none; }
+#boot canvas { width: 72px; height: 81px; image-rendering: pixelated; animation: bootblink 1.6s ease infinite; }
+@keyframes bootblink { 0%, 88%, 100% { opacity: 1; } 92%, 96% { opacity: .55; } }
+#boot p { font-weight: 900; font-size: 20px; letter-spacing: -.02em; }
+#boot .boot-bar { width: 120px; height: 6px; background: rgba(255,255,255,.1); border-radius: 4px; overflow: hidden; }
+#boot .boot-bar i { display: block; height: 100%; width: 40%; background: var(--acc); border-radius: 4px; animation: bootslide 1s steps(6) infinite; }
+@keyframes bootslide { from { transform: translateX(-110%); } to { transform: translateX(280%); } }
+/* barra fina de rota/atual: só com espera real (body.loading vem do engine) */
+#routeBar { position: fixed; top: 0; left: 0; height: 2px; width: 0; z-index: 90; background: linear-gradient(90deg, var(--acc), var(--grn)); opacity: 0; }
+body.loading #routeBar { opacity: 1; animation: routefill 1.1s ease forwards; }
+@keyframes routefill { from { width: 0; } 60% { width: 68%; } to { width: 92%; } }
+/* botões de play viram pixel-spinner enquanto o áudio carrega */
+body.loading .play svg, body.loading .mplay svg, body.loading .trow.on .num button svg { display: none; }
+body.loading .play::after, body.loading .mplay::after { content: ''; width: 14px; height: 14px; background: var(--grn); animation: pxblink .55s steps(2) infinite; }
+body.loading .mplay::after { background: #000; }
+body.loading .trow.on .num button::after { content: ''; display: block; width: 10px; height: 10px; margin: 0 auto; background: var(--grn); animation: pxblink .55s steps(2) infinite; }
+body.loading .trow.on .num button { display: block; }
+body.loading .trow.on .num span { display: none; }
+@keyframes pxblink { 50% { opacity: .2; } }
+/* skeletons (usados onde há espera real: probes de qualidade/info) */
+.skel { border-radius: 8px; background: linear-gradient(100deg, rgba(255,255,255,.05) 40%, rgba(143,108,240,.14) 50%, rgba(255,255,255,.05) 60%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
+@keyframes shimmer { from { background-position: 180% 0; } to { background-position: -80% 0; } }
+.skel-row { height: 62px; margin: 8px 0; }
+.skel-card { height: 120px; }
+.skel-line { height: 14px; margin: 10px 0; }
