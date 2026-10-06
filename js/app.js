@@ -18,6 +18,7 @@
         const src = actx.createMediaElementSource(el);
         src.connect(analyser); src.connect(actx.destination);
       });
+      window.__actx = actx;
       freq = new Uint8Array(analyser.frequencyBinCount);
       const hz = actx.sampleRate / analyser.fftSize, b = (f) => Math.max(1, Math.round(f / hz));
       bins = { b0: b(35), b1: b(150), m0: b(250), m1: b(2000), t0: b(4000), t1: b(12000) };

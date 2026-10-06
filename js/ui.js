@@ -207,6 +207,7 @@ window.UI = (() => {
       <h2 class="sec-t">Qualidade de áudio</h2><div id="qTiers"></div>
       <h2 class="sec-t">Reprodução</h2>
       <div class="mrow"><div>Crossfade<small>emenda real entre faixas</small></div><div class="optgrid" style="grid-template-columns:repeat(4,1fr);min-width:220px;">${[0, 2, 4, 6].map((s) => `<button data-xf="${s}" class="${p.crossfade === s ? 'on' : ''}">${s === 0 ? 'Off' : s + 's'}</button>`).join('')}</div></div>
+      ${E.isIOS ? '<p class="sub">No iPhone o crossfade fica desligado de propósito: confiabilidade primeiro.</p>' : ''}
       ${sw('gapless', 'Gapless', 'próxima faixa sem intervalo', false)}
       ${sw('autoplay', 'Autoplay', 'continua tocando ao fim da fila', false)}
       ${sw('norm', 'Normalizar volume', 'exige processamento de áudio — indisponível (áudio nunca é processado)', true)}
@@ -357,6 +358,7 @@ window.UI = (() => {
   function openDevices() {
     openModal(`<button class="iconbtn mclose" data-x aria-label="fechar">✕</button><h2>Dispositivos</h2><p class="msub">Saída de áudio.</p>
       <div class="mrow"><div>Este dispositivo<small>navegador — disponível</small></div><b style="color:var(--grn)">● ativo</b></div>
+      <div class="mrow"><div>Volume do sistema<small>no iPhone use os botões laterais; no desktop use o slider</small></div></div>
       <div class="mrow"><div>Dispositivo externo<small>casting não suportado neste navegador</small></div><button class="btn-ghost" disabled>indisponível</button></div>`);
   }
   function openAddPlaylist(tr) {
