@@ -31,6 +31,14 @@ Guidelines for coding agents working in this repo.
 | `data/library.js` | artista, álbum e playlists derivados do catálogo |
 | `tools/transcribe.py` | Whisper transcription (utility) |
 
+## Performance
+
+- Single RAF scheduler (`js/fx.js`): scene 60/30fps, covers 12fps, mascots ~9fps, UI 60fps; paused when tab hidden.
+- Profiles: `full` (desktop) · `balanced` (mobile default) · `battery`; switch in Settings, stored in `bearify.perf`.
+- Balanced/battery: no audio analyser (synthetic levels), less blur, fewer redraws. Audio quality untouched.
+- Debug: `?debug=1` shows FPS/loops/canvas/analyser. Isolation: `?scene=off ?covers=off ?fx=off ?blur=off ?noviz`.
+- Rules: no layout reads in loops, transform/opacity only, lyrics paint on line change, seek fill via `scaleX`.
+
 ## Run
 
 ```bash
