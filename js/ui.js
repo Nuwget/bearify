@@ -18,7 +18,8 @@ window.UI = (() => {
   function userPlaylists() { return E.store.playlists || []; }
   function allPlaylists() {
     const liked = { id: 'liked', name: 'Liked Songs', desc: 'Suas favoritas.', tracks: E.store.likes.filter((id) => E.byId[id]) };
-    return [liked, ...LIB.PLAYLISTS, ...userPlaylists()];
+    const live = LIB.PLAYLISTS.map((p) => (p.id === 'pl-ouvindo' ? { ...p, tracks: [...E.store.recent] } : p));
+    return [liked, ...live, ...userPlaylists()];
   }
   function findPlaylist(id) { return allPlaylists().find((p) => p.id === id); }
 
@@ -78,6 +79,7 @@ window.UI = (() => {
           <button class="btn-ghost" data-album="${alb.id}">Abrir álbum</button>
         </div></div>
       </div>
+      ${LIB.ALBUMS.map((a) => `<h2 class="sec-t">${esc(a.title)}<small>álbum · ${a.year}</small></h2>${a.tracks.map((x) => E.byId[x]).map((t, i) => trackRow(t, i + 1)).join('')}`).join('')}
       <h2 class="sec-t">Atalhos rápidos</h2>
       <div class="quick">${T.map((tr) => `<button class="qcard" data-play="${tr.id}">${thumb(tr)}<span>${esc(tr.title)}</span><span class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></button>`).join('')}</div>
       ${recent.length ? `<h2 class="sec-t">Tocadas recentemente</h2><div class="hrow">${recent.map(trackCard).join('')}</div>` : ''}
