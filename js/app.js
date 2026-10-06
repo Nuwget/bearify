@@ -78,10 +78,19 @@
 
   /* ---------- boot + loop ---------- */
   window.UI.init();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => window.__boot && window.__boot.stage(2));
+  else if (window.__boot) window.__boot.stage(2);
+  let metaStaged = false;
+  E.bus.on('meta', () => { if (!metaStaged) { metaStaged = true; if (window.__boot) { window.__boot.stage(3); window.__boot.done(); } } });
+  setTimeout(() => window.__boot && window.__boot.done(), 3500); // failsafe
   (function tick(now) {
     const t = now / 1000;
-    readLevels(t);
-    if (window.UI.onTick) window.UI.onTick(E.player.el);
+    if (window.FX) FX.frame(now);
+    const paused = window.FX && FX.paused;
+    if (!paused) {
+      readLevels(t);
+      if (window.UI.onTick) window.UI.onTick(E.player.el);
+    }
     requestAnimationFrame(tick);
   })(performance.now());
 })();

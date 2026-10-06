@@ -15,7 +15,14 @@
 <body>
 
 <canvas id="scene" aria-hidden="true"></canvas>
-<div id="boot" aria-hidden="true"><canvas id="bootBear" width="50" height="56"></canvas><p>bearify</p><div class="boot-bar"><i></i></div></div>
+<div id="boot" aria-hidden="true">
+  <div class="boot-inner">
+    <p class="boot-logo">bearify<span>nuwget songs</span></p>
+    <canvas id="bootBear" width="96" height="64"></canvas>
+    <div class="boot-bar" id="bootFill"></div>
+    <p class="boot-row"><span id="bootMsg">acordando o Bearify…</span><span id="bootPct">0%</span></p>
+  </div>
+</div></div>
 <div class="ambient" id="ambient" aria-hidden="true"></div>
 <div id="routeBar" aria-hidden="true"></div>
 
@@ -176,6 +183,8 @@
 <script src="data/tracks.js"></script>
 <script src="data/library.js"></script>
 <script src="js/art.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/boot.js"></script>
 <script src="js/mascots.js"></script>
 <script src="js/covers.js"></script>
 <script src="js/world.js"></script>

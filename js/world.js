@@ -404,7 +404,12 @@
     ctx.globalAlpha = 1;
   }
 
+  let wFrame = 0;
   function frame(now) {
+    if (window.FX && FX.paused) { requestAnimationFrame(frame); return; }
+    const lowFx = window.FX && FX.low;
+    wFrame++;
+
     const dt = Math.min(0.1, (now - last) / 1000); last = now;
     const t = (now - t0) / 1000 + hashT, secs = now / 1000;
     const bass = L.bass, tre = L.treble;
@@ -570,7 +575,7 @@
     }
 
     // sparse foreground rain in front of everything: long, bright, quick
-    for (const d of rainN) {
+    for (let ri = 0; ri < rainN.length; ri++) { const d = rainN[ri]; if (lowFx && (ri & 1)) { d.y += d.v * dt * 0.5; continue; }
       d.y += d.v * dt * (reduce ? 0.4 : 1); d.x -= d.v * dt * 0.22;
       if (d.y > d.end) { if (!reduce && d.x > curtW && d.x < W - curtW) splashes.push({ x: Math.round(d.x), y: Math.round(d.end), t: 0 }); d.y = -d.len; d.x = rr() * (W + 30) - 6; d.end = baseY + 1 + rr() * 6; continue; }
       if (d.x < curtW || d.x > W - curtW) continue;

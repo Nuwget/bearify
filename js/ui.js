@@ -604,10 +604,7 @@ window.UI = (() => {
   function init() {
     bind();
     renderVol();
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      const b = document.getElementById('boot');
-      if (b) { b.classList.add('done'); setTimeout(() => b.remove(), 600); }
-    }));
+    if (window.__boot) window.__boot.stage(1);
     probeDurations();
     E.queue.set(T.map((t) => t.id), T[0].id);
     window.CURRENT = 0;

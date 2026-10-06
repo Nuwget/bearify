@@ -265,7 +265,11 @@ window.Covers = (() => {
 
   // tempo próprio: avança com o playback, quase congela no pause
   let ta = 0, lastT = 0;
+  let cFrame = 0;
   function tick(now) {
+    if (window.FX && FX.paused) { requestAnimationFrame(tick); return; }
+    const lowFx = window.FX && FX.low;
+    if (lowFx && ((cFrame++ % 3) !== 0)) { requestAnimationFrame(tick); return; }
     const t = now / 1000, dt = Math.min(0.1, t - (lastT || t));
     lastT = t;
     if (!reduce) ta += dt * (document.body.classList.contains('playing') ? 1 : 0.06);
