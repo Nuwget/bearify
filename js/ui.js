@@ -122,9 +122,20 @@ window.UI = (() => {
     const s = searchQ.trim().toLowerCase();
     if (!s) {
       const rq = recentQ();
-      box.innerHTML = rq.length
-        ? `<h2 class="sec-t">Buscas recentes</h2><div class="chips">${rq.map((x) => `<button data-qchip="${esc(x)}">${esc(x)}</button>`).join('')}</div>`
-        : `<div class="empty"><b>Explore o catálogo</b>Digite para buscar nas songs do nuwget.</div>`;
+      const recent = E.store.recent.map((id) => E.byId[id]).filter(Boolean);
+      const moods = [
+        { e: '🌙', label: 'madrugada', go: '#/playlist/pl-madrugada' },
+        { e: '🌊', label: 'maré alta', go: '#/playlist/pl-mare' },
+        { e: '💜', label: 'bearify sessions', go: '#/album/bearify-sessions' },
+        { e: '➕', label: 'continue ouvindo', go: '#/playlist/pl-ouvindo' },
+      ];
+      box.innerHTML = `
+        <h2 class="sec-t">O que você quer sentir?</h2>
+        <div class="moods">${moods.map((m) => `<button class="mood" data-go="${m.go}"><span class="me">${m.e}</span><span>${esc(m.label)}</span></button>`).join('')}</div>
+        ${recent.length ? `<h2 class="sec-t">Ouça novamente</h2><div class="hrow">${recent.map(trackCard).join('')}</div>` : ''}
+        <h2 class="sec-t">Playlists para você</h2>
+        <div class="hrow">${allPlaylists().slice(0, 4).map((pl) => `<div class="card" data-pl="${pl.id}"><div class="artw">${plThumb(pl, 'art')}</div><p class="ct">${esc(pl.name)}</p><p class="cs">${pl.tracks.length} songs</p></div>`).join('')}</div>
+        ${rq.length ? `<h2 class="sec-t">Buscas recentes</h2><div class="chips">${rq.map((x) => `<button data-qchip="${esc(x)}">${esc(x)}</button>`).join('')}</div>` : ''}`;
       return;
     }
     const hits = T.filter((t) => (t.title + ' ' + t.artist + ' ' + t.album).toLowerCase().includes(s));
