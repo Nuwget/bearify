@@ -84,6 +84,7 @@ window.UI = (() => {
         <canvas class="cov fh" data-i="${idx(feat.id)}" width="32" height="32" aria-hidden="true"></canvas>
         <div class="fmeta"><p class="fk">Em destaque · álbum</p><h2>${esc(alb.title)}</h2>
         <p class="fm">${esc(alb.artist)} · ${alb.year} · ${alb.tracks.length} songs</p>
+        ${alb.tagline ? `<p class="tagline">${esc(alb.tagline)}</p>` : ''}
         <div class="actions">
           <button class="btn-play" data-playalbum="${alb.id}"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Tocar</button>
           <button class="btn-ghost" data-shufflealbum="${alb.id}">Aleatório</button>
@@ -126,7 +127,7 @@ window.UI = (() => {
       const moods = [
         { e: '🌙', label: 'madrugada', go: '#/playlist/pl-madrugada' },
         { e: '🌊', label: 'maré alta', go: '#/playlist/pl-mare' },
-        { e: '💜', label: 'bearify sessions', go: '#/album/bearify-sessions' },
+        { e: '💜', label: 'made with heart', go: '#/album/made-with-heart' },
         { e: '➕', label: 'continue ouvindo', go: '#/playlist/pl-ouvindo' },
       ];
       box.innerHTML = `
@@ -185,7 +186,7 @@ window.UI = (() => {
   function vAlbum(id) {
     const a = LIB.ALBUMS.find((x) => x.id === id); if (!a) return vHome();
     const ts = a.tracks.map((x) => E.byId[x]);
-    view.innerHTML = hero('Álbum', a.title, `<b>${esc(a.artist)}</b> · ${a.year} · ${ts.length} songs`, idx(ts[0].id)) + `
+    view.innerHTML = hero('Álbum', a.title, `<b>${esc(a.artist)}</b> · ${a.year} · ${ts.length} songs${a.tagline ? `<br><span class="tagline">${esc(a.tagline)}</span>` : ''}`, idx(ts[0].id)) + `
       <div class="actions"><button class="btn-play" data-playalbum="${a.id}"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Tocar</button>
       <button class="btn-ghost" data-shufflealbum="${a.id}">Aleatório</button></div>
       ${ts.map((t, i) => trackRow(t, i + 1)).join('')}`;
