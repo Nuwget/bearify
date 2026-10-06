@@ -620,7 +620,8 @@ window.UI = (() => {
     document.querySelectorAll('.np-tabs button').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('.np-tabs button').forEach((x) => x.classList.toggle('on', x === b)); $('np').classList.toggle('lyr', b.dataset.tab === 'lyrics'); const pn = document.querySelector('.np-panels'); pn.classList.remove('swap'); void pn.offsetWidth; pn.classList.add('swap'); syncNP(b.dataset.tab); }));
     $('npArtist').addEventListener('click', () => { $('np').hidden = true; location.hash = '#/artist/' + E.queue.current().artistId; });
     // engine events
-    E.bus.on('track', () => { document.body.classList.add('played'); syncDock(); syncQuality(); renderQueue(); if (!$('np').hidden) syncNP(); });
+    let firstTrack = true;
+    E.bus.on('track', () => { if (firstTrack) firstTrack = false; else document.body.classList.add('played'); syncDock(); syncQuality(); renderQueue(); if (!$('np').hidden) syncNP(); });
     E.bus.on('queue', renderQueue);
     E.bus.on('status', ({ status, message }) => {
       document.body.classList.toggle('playing', status === 'playing');
