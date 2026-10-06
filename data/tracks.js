@@ -1,397 +1,134 @@
 // bearify · catálogo local — só músicas do nuwget.
 // Como adicionar faixa: jogue o arquivo em media/ e acrescente um objeto aqui.
-// lyrics: [{t, end, text}] sincronizada ou null (painel mostra estado vazio real).
+// dur: duração em segundos (o iOS não carrega metadata antes do play).
+// lyrics: [{t, end, pt, en}] sincronizada (um timestamp, dois idiomas) ou null.
 window.TRACKS = [
   {
-    id: 'welcome-to-your-past',
-    title: 'Welcome to your past',
-    artist: 'nuwget',
-    artistId: 'nuwget',
-    album: 'Made with Heart',
-    albumId: 'made-with-heart',
+    id: "welcome-to-your-past",
+    title: "Welcome to your past",
+    artist: "nuwget",
+    artistId: "nuwget",
+    album: "Made with Heart",
+    albumId: "made-with-heart",
     year: 2026,
-    base: 'media/welcome-to-your-past',
+    base: "media/welcome-to-your-past",
+    dur: 184.33,
     lyrics: [
-      { t: 0.0, end: 14.0, text: 'Welcome to your past', translation: 'Bem-vindo ao seu passado' },
-      { t: 19.0, end: 22.0, text: 'I remember', translation: 'Eu me lembro' },
-      { t: 22.0, end: 30.0, text: 'I remember', translation: 'Eu me lembro' },
-      { t: 46.0, end: 50.0, text: 'Take me back', translation: 'Leve-me de volta' },
-      { t: 52.0, end: 59.2, text: 'Mm, take me back', translation: 'Mm, leve-me de volta' },
-      { t: 59.2, end: 68.8, text: 'ooh · ooh · ooh', translation: 'ooh · ooh · ooh' },
-      { t: 68.8, end: 76.8, text: 'Mm, do you remember?', translation: 'Mm, você se lembra?' },
-      { t: 106.8, end: 120.32, text: 'Welcome to your house', translation: 'Bem-vindo à sua casa' },
-      { t: 136.8, end: 165.8, text: 'Welcome to your past', translation: 'Bem-vindo ao seu passado' },
+      { t: 0, end: 14, pt: "Bem-vindo ao seu passado", en: "Welcome to your past" },
+      { t: 19, end: 22, pt: "Eu me lembro", en: "I remember" },
+      { t: 22, end: 30, pt: "Eu me lembro", en: "I remember" },
+      { t: 46, end: 50, pt: "Leve-me de volta", en: "Take me back" },
+      { t: 52, end: 59.2, pt: "Mm, leve-me de volta", en: "Mm, take me back" },
+      { t: 59.2, end: 68.8, pt: "ooh · ooh · ooh", en: "ooh · ooh · ooh" },
+      { t: 68.8, end: 76.8, pt: "Mm, você se lembra?", en: "Mm, do you remember?" },
+      { t: 106.8, end: 120.32, pt: "Bem-vindo à sua casa", en: "Welcome to your house" },
+      { t: 136.8, end: 165.8, pt: "Bem-vindo ao seu passado", en: "Welcome to your past" },
     ],
   },
   {
-    id: 'in-the-blue',
-    title: 'In the Blue',
-    artist: 'nuwget',
-    artistId: 'nuwget',
-    album: 'Made with Heart',
-    albumId: 'made-with-heart',
+    id: "in-the-blue",
+    title: "In the Blue",
+    artist: "nuwget",
+    artistId: "nuwget",
+    album: "Made with Heart",
+    albumId: "made-with-heart",
     year: 2026,
-    base: 'media/in-the-blue',
+    base: "media/in-the-blue",
+    dur: 224.76,
     lyrics: [
-    {
-        "t": 52.84,
-        "end": 59.0,
-        "text": "I'm still awake in the blue", "translation": "Ainda estou acordado no azul"
-    },
-    {
-        "t": 59.22,
-        "end": 69.06,
-        "text": "Ooh, ooh, ooh, ooh", "translation": "Ooh, ooh, ooh, ooh"
-    },
-    {
-        "t": 69.06,
-        "end": 72.54,
-        "text": "I remember", "translation": "Eu me lembro"
-    },
-    {
-        "t": 73.22,
-        "end": 78.62,
-        "text": "Ooh, ooh, ooh, ooh", "translation": "Ooh, ooh, ooh, ooh"
-    },
-    {
-        "t": 78.62,
-        "end": 81.64,
-        "text": "Nothing to say", "translation": "Nada a dizer"
-    },
-    {
-        "t": 81.64,
-        "end": 88.12,
-        "text": "Just breathe", "translation": "Apenas respire"
-    },
-    {
-        "t": 93.16,
-        "end": 101.3,
-        "text": "For a moment, I'm alright", "translation": "Por um momento, estou bem"
-    },
-    {
-        "t": 112.6,
-        "end": 119.24,
-        "text": "Mmm, mmm, mmm, mmm, mmm", "translation": "Mmm, mmm, mmm, mmm, mmm"
-    },
-    {
-        "t": 119.24,
-        "end": 124.48,
-        "text": "What does it feel?", "translation": "Como se sente?"
-    },
-    {
-        "t": 173.06,
-        "end": 180.18,
-        "text": "Let it fade", "translation": "Deixe desaparecer"
-    },
-    {
-        "t": 191.64,
-        "end": 194.76,
-        "text": "Let it fade", "translation": "Deixe desaparecer"
-    }
-],
+      { t: 52.84, end: 59, pt: "Ainda estou acordado no azul", en: "I'm still awake in the blue" },
+      { t: 59.22, end: 69.06, pt: "Ooh, ooh, ooh, ooh", en: "Ooh, ooh, ooh, ooh" },
+      { t: 69.06, end: 72.54, pt: "Eu me lembro", en: "I remember" },
+      { t: 73.22, end: 78.62, pt: "Ooh, ooh, ooh, ooh", en: "Ooh, ooh, ooh, ooh" },
+      { t: 78.62, end: 81.64, pt: "Nada a dizer", en: "Nothing to say" },
+      { t: 81.64, end: 88.12, pt: "Apenas respire", en: "Just breathe" },
+      { t: 93.16, end: 101.3, pt: "Por um momento, estou bem", en: "For a moment, I'm alright" },
+      { t: 112.6, end: 119.24, pt: "Mmm, mmm, mmm, mmm, mmm", en: "Mmm, mmm, mmm, mmm, mmm" },
+      { t: 119.24, end: 124.48, pt: "Como se sente?", en: "What does it feel?" },
+      { t: 173.06, end: 180.18, pt: "Deixe desaparecer", en: "Let it fade" },
+      { t: 191.64, end: 194.76, pt: "Deixe desaparecer", en: "Let it fade" },
+    ],
   },
   {
-    id: 'just-a-little-more-time',
-    title: 'Just a Little More Time',
-    artist: 'nuwget',
-    artistId: 'nuwget',
-    album: 'Made with Heart',
-    albumId: 'made-with-heart',
+    id: "just-a-little-more-time",
+    title: "Just a Little More Time",
+    artist: "nuwget",
+    artistId: "nuwget",
+    album: "Made with Heart",
+    albumId: "made-with-heart",
     year: 2026,
-    base: 'media/just-a-little-more-time',
+    base: "media/just-a-little-more-time",
+    dur: 248.64,
     lyrics: [
-    {
-        "t": 11.42,
-        "end": 15.74,
-        "text": "You say I never learn,"
-    },
-    {
-        "t": 16.38,
-        "end": 22.4,
-        "text": "You're probably right I forget the little things,"
-    },
-    {
-        "t": 23.48,
-        "end": 26.42,
-        "text": "I say the wrong thing at night"
-    },
-    {
-        "t": 26.42,
-        "end": 29.98,
-        "text": "You get so mad at me,"
-    },
-    {
-        "t": 29.98,
-        "end": 31.48,
-        "text": "I know, I know"
-    },
-    {
-        "t": 31.48,
-        "end": 36.68,
-        "text": "I ruin every quiet moment just by being me"
-    },
-    {
-        "t": 37.92,
-        "end": 42.42,
-        "text": "And still I come back to you"
-    },
-    {
-        "t": 42.94,
-        "end": 46.6,
-        "text": "I know I make it harder than it has to be"
-    },
-    {
-        "t": 46.6,
-        "end": 51.42,
-        "text": "But when you turn away you're still all I see"
-    },
-    {
-        "t": 51.42,
-        "end": 57.94,
-        "text": "Mmm, just a little more time"
-    },
-    {
-        "t": 57.94,
-        "end": 60.92,
-        "text": "Don't leave yet"
-    },
-    {
-        "t": 60.92,
-        "end": 64.34,
-        "text": "I know I messed up again"
-    },
-    {
-        "t": 64.34,
-        "end": 68.48,
-        "text": "I ain't done loving you yet"
-    },
-    {
-        "t": 68.48,
-        "end": 71.84,
-        "text": "You can tell me I'm wrong"
-    },
-    {
-        "t": 71.84,
-        "end": 75.32,
-        "text": "You can say I've changed too late"
-    },
-    {
-        "t": 75.32,
-        "end": 77.16,
-        "text": "I'll listen this time,"
-    },
-    {
-        "t": 77.16,
-        "end": 79.54,
-        "text": "I'll try again"
-    },
-    {
-        "t": 82.74,
-        "end": 87.54,
-        "text": "Just a little more time"
-    },
-    {
-        "t": 98.12,
-        "end": 102.0,
-        "text": "You hate when I go quiet when I don't know what to say"
-    },
-    {
-        "t": 102.0,
-        "end": 105.38,
-        "text": "I hate the way you cry when I could've stayed"
-    },
-    {
-        "t": 105.38,
-        "end": 108.78,
-        "text": "Another cigarette, another stupid fight"
-    },
-    {
-        "t": 108.78,
-        "end": 112.82,
-        "text": "You say, why do you always do this?"
-    },
-    {
-        "t": 112.94,
-        "end": 115.4,
-        "text": "I say, I'm trying"
-    },
-    {
-        "t": 116.03,
-        "end": 119.72,
-        "text": "You say, then try harder"
-    },
-    {
-        "t": 121.46,
-        "end": 122.74,
-        "text": "Why do?"
-    },
-    {
-        "t": 123.54,
-        "end": 126.46,
-        "text": "I'm never gonna be the man who gets it right"
-    },
-    {
-        "t": 126.46,
-        "end": 132.26,
-        "text": "But I swear I love you more every single night"
-    },
-    {
-        "t": 134.36,
-        "end": 137.44,
-        "text": "Just a little more time"
-    },
-    {
-        "t": 137.44,
-        "end": 139.76,
-        "text": "Sit here with me"
-    },
-    {
-        "t": 139.76,
-        "end": 141.46,
-        "text": "We don't have to fix it"
-    },
-    {
-        "t": 141.46,
-        "end": 142.96,
-        "text": "Just don't leave"
-    },
-    {
-        "t": 142.96,
-        "end": 145.46,
-        "text": "You can complain, you can be mad"
-    },
-    {
-        "t": 145.46,
-        "end": 146.98,
-        "text": "You can tell me everything"
-    },
-    {
-        "t": 146.98,
-        "end": 149.9,
-        "text": "I'll take it all if you're still here with me"
-    },
-    {
-        "t": 149.9,
-        "end": 156.98,
-        "text": "Just a little more time"
-    },
-    {
-        "t": 164.24,
-        "end": 168.2,
-        "text": "I know, I know I hurt you,"
-    },
-    {
-        "t": 168.2,
-        "end": 171.1,
-        "text": "I know I made the same mistakes"
-    },
-    {
-        "t": 171.1,
-        "end": 177.2,
-        "text": "But I would spend my whole life learning how to love you better"
-    },
-    {
-        "t": 177.2,
-        "end": 180.7,
-        "text": "Just don't go yet"
-    },
-    {
-        "t": 180.7,
-        "end": 184.32,
-        "text": "Just a little more time"
-    },
-    {
-        "t": 184.32,
-        "end": 187.86,
-        "text": "I'll mess up again"
-    },
-    {
-        "t": 187.86,
-        "end": 193.02,
-        "text": "I probably will, but I'll come back,"
-    },
-    {
-        "t": 193.1,
-        "end": 194.36,
-        "text": "I'll choose you"
-    },
-    {
-        "t": 194.36,
-        "end": 201.4,
-        "text": "Still, you don't have to forgive me tonight"
-    },
-    {
-        "t": 203.88,
-        "end": 210.08,
-        "text": "Just sit beside me until the morning light"
-    },
-    {
-        "t": 210.08,
-        "end": 213.48,
-        "text": "Just a little more time"
-    },
-    {
-        "t": 215.2,
-        "end": 220.58,
-        "text": "Ooh, I know I'm difficult,"
-    },
-    {
-        "t": 220.76,
-        "end": 222.9,
-        "text": "I know I'm lame"
-    },
-    {
-        "t": 222.9,
-        "end": 228.92,
-        "text": "But God, I love you"
-    },
-    {
-        "t": 228.92,
-        "end": 235.76,
-        "text": "Mmm, I'll try again tomorrow"
-    },
-    {
-        "t": 235.76,
-        "end": 243.0,
-        "text": "Just stay with me"
-    }
-],
+      { t: 11.42, end: 15.74, pt: "Você diz que eu nunca aprendo,", en: "You say I never learn," },
+      { t: 16.38, end: 22.4, pt: "Você provavelmente tem razão, eu esqueço as pequenas coisas,", en: "You're probably right I forget the little things," },
+      { t: 23.48, end: 26.42, pt: "Eu digo a coisa errada de noite", en: "I say the wrong thing at night" },
+      { t: 26.42, end: 29.98, pt: "Você fica tão brava comigo,", en: "You get so mad at me," },
+      { t: 29.98, end: 31.48, pt: "Eu sei, eu sei", en: "I know, I know" },
+      { t: 31.48, end: 36.68, pt: "Eu estrago cada momento de silêncio só por ser quem eu sou", en: "I ruin every quiet moment just by being me" },
+      { t: 37.92, end: 42.42, pt: "E mesmo assim eu volto pra você", en: "And still I come back to you" },
+      { t: 42.94, end: 46.6, pt: "Eu sei que complico mais do que precisava", en: "I know I make it harder than it has to be" },
+      { t: 46.6, end: 51.42, pt: "Mas quando você se vira, você ainda é tudo o que eu vejo", en: "But when you turn away you're still all I see" },
+      { t: 51.42, end: 57.94, pt: "Mmm, só um pouco mais de tempo", en: "Mmm, just a little more time" },
+      { t: 57.94, end: 60.92, pt: "Não vá ainda", en: "Don't leave yet" },
+      { t: 60.92, end: 64.34, pt: "Eu sei que errei de novo", en: "I know I messed up again" },
+      { t: 64.34, end: 68.48, pt: "Eu ainda não terminei de te amar", en: "I ain't done loving you yet" },
+      { t: 68.48, end: 71.84, pt: "Você pode dizer que estou errado", en: "You can tell me I'm wrong" },
+      { t: 71.84, end: 75.32, pt: "Você pode dizer que eu mudei tarde demais", en: "You can say I've changed too late" },
+      { t: 75.32, end: 77.16, pt: "Dessa vez eu vou ouvir,", en: "I'll listen this time," },
+      { t: 77.16, end: 79.54, pt: "Eu vou tentar de novo", en: "I'll try again" },
+      { t: 82.74, end: 87.54, pt: "Só um pouco mais de tempo", en: "Just a little more time" },
+      { t: 98.12, end: 102, pt: "Você odeia quando eu fico em silêncio sem saber o que dizer", en: "You hate when I go quiet when I don't know what to say" },
+      { t: 102, end: 105.38, pt: "Eu odeio o jeito que você chora quando eu poderia ter ficado", en: "I hate the way you cry when I could've stayed" },
+      { t: 105.38, end: 108.78, pt: "Outro cigarro, outra briga boba", en: "Another cigarette, another stupid fight" },
+      { t: 108.78, end: 112.82, pt: "Você diz: por que você sempre faz isso?", en: "You say, why do you always do this?" },
+      { t: 112.94, end: 115.4, pt: "Eu digo: estou tentando", en: "I say, I'm trying" },
+      { t: 116.03, end: 119.72, pt: "Você diz: então tente mais", en: "You say, then try harder" },
+      { t: 121.46, end: 122.74, pt: "Por quê?", en: "Why do?" },
+      { t: 123.54, end: 126.46, pt: "Eu nunca vou ser o homem que acerta tudo", en: "I'm never gonna be the man who gets it right" },
+      { t: 126.46, end: 132.26, pt: "Mas eu juro que te amo mais a cada noite", en: "But I swear I love you more every single night" },
+      { t: 134.36, end: 137.44, pt: "Só um pouco mais de tempo", en: "Just a little more time" },
+      { t: 137.44, end: 139.76, pt: "Fique aqui comigo", en: "Sit here with me" },
+      { t: 139.76, end: 141.46, pt: "A gente não precisa consertar nada", en: "We don't have to fix it" },
+      { t: 141.46, end: 142.96, pt: "Só não vá embora", en: "Just don't leave" },
+      { t: 142.96, end: 145.46, pt: "Você pode reclamar, pode ficar com raiva", en: "You can complain, you can be mad" },
+      { t: 145.46, end: 146.98, pt: "Você pode me dizer tudo", en: "You can tell me everything" },
+      { t: 146.98, end: 149.9, pt: "Eu aceito tudo se você ainda estiver aqui comigo", en: "I'll take it all if you're still here with me" },
+      { t: 149.9, end: 156.98, pt: "Só um pouco mais de tempo", en: "Just a little more time" },
+      { t: 164.24, end: 168.2, pt: "Eu sei, eu sei que te machuquei,", en: "I know, I know I hurt you," },
+      { t: 168.2, end: 171.1, pt: "Eu sei que cometi os mesmos erros", en: "I know I made the same mistakes" },
+      { t: 171.1, end: 177.2, pt: "Mas eu passaria a vida inteira aprendendo a te amar melhor", en: "But I would spend my whole life learning how to love you better" },
+      { t: 177.2, end: 180.7, pt: "Só não vá ainda", en: "Just don't go yet" },
+      { t: 180.7, end: 184.32, pt: "Só um pouco mais de tempo", en: "Just a little more time" },
+      { t: 184.32, end: 187.86, pt: "Eu vou errar de novo", en: "I'll mess up again" },
+      { t: 187.86, end: 193.02, pt: "Provavelmente vou, mas eu volto,", en: "I probably will, but I'll come back," },
+      { t: 193.1, end: 194.36, pt: "Eu escolho você", en: "I'll choose you" },
+      { t: 194.36, end: 201.4, pt: "Ainda assim, você não precisa me perdoar esta noite", en: "Still, you don't have to forgive me tonight" },
+      { t: 203.88, end: 210.08, pt: "Só sente ao meu lado até a luz da manhã", en: "Just sit beside me until the morning light" },
+      { t: 210.08, end: 213.48, pt: "Só um pouco mais de tempo", en: "Just a little more time" },
+      { t: 215.2, end: 220.58, pt: "Ooh, eu sei que sou difícil,", en: "Ooh, I know I'm difficult," },
+      { t: 220.76, end: 222.9, pt: "Eu sei que sou um fracasso", en: "I know I'm lame" },
+      { t: 222.9, end: 228.92, pt: "Mas meu Deus, eu te amo", en: "But God, I love you" },
+      { t: 228.92, end: 235.76, pt: "Mmm, eu vou tentar de novo amanhã", en: "Mmm, I'll try again tomorrow" },
+      { t: 235.76, end: 243, pt: "Só fique comigo", en: "Just stay with me" },
+    ],
   },
   {
-    id: 'silentreminante',
-    title: 'Silentreminante',
-    artist: 'nuwget',
-    artistId: 'nuwget',
-    album: 'Made with Heart',
-    albumId: 'made-with-heart',
+    id: "silentreminante",
+    title: "Silentreminante",
+    artist: "nuwget",
+    artistId: "nuwget",
+    album: "Made with Heart",
+    albumId: "made-with-heart",
     year: 2026,
-    base: 'media/silentreminante',
+    base: "media/silentreminante",
+    dur: 198.76,
     lyrics: [
-    {
-        "t": 38.12,
-        "end": 44.0,
-        "text": "Ooh, ooh"
-    },
-    {
-        "t": 52.14,
-        "end": 58.68,
-        "text": "Ooh, ooh, ooh, ooh", "translation": "Ooh, ooh, ooh, ooh"
-    },
-    {
-        "t": 75.0,
-        "end": 76.4,
-        "text": "Oh"
-    },
-    {
-        "t": 102.48,
-        "end": 103.88,
-        "text": "Oh"
-    },
-    {
-        "t": 121.14,
-        "end": 122.54,
-        "text": "Oh"
-    }
-],
+      { t: 38.12, end: 44, pt: "Ooh, ooh", en: "Ooh, ooh" },
+      { t: 52.14, end: 58.68, pt: "Ooh, ooh, ooh, ooh", en: "Ooh, ooh, ooh, ooh" },
+      { t: 75, end: 76.4, pt: "Oh", en: "Oh" },
+      { t: 102.48, end: 103.88, pt: "Oh", en: "Oh" },
+      { t: 121.14, end: 122.54, pt: "Oh", en: "Oh" },
+    ],
   },
 ];
