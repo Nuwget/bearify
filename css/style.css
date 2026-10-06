@@ -16,7 +16,8 @@
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { height: 100%; }
-body { background: var(--bg); color: var(--txt); font-family: var(--font); overflow: hidden; font-size: 14px; }
+body { background: var(--bg); color: var(--txt); font-family: var(--font); overflow: hidden; overflow-x: clip; font-size: 14px; }
+.main, .side { min-width: 0; }
 button { font-family: inherit; }
 a { color: inherit; }
 :focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; border-radius: 6px; }
@@ -258,15 +259,10 @@ canvas.cov { image-rendering: pixelated; display: block; }
   .hero canvas.big { width: 130px; height: 130px; }
   .np-body { grid-template-columns: 1fr; overflow-y: auto; padding: 10px 20px 30px; }
   .np-artwrap canvas { max-width: 340px; margin: 0 auto; }
-  .dock { grid-template-columns: 1fr auto; grid-template-areas: 'now ctrl' 'seek seek'; gap: 4px 10px; padding: 8px 12px; }
-  .now { grid-area: now; } .center { grid-area: seek; }
-  .center .transport { gap: 2px; } .center .transport .tbtn { width: 26px; height: 26px; } .center .transport .play { width: 32px; height: 32px; }
-  .vol-row { grid-area: ctrl; } .vol-row #vol, .vol-row #btnDevices, .vol-row #btnLyrics { display: none; }
   .mnav { display: flex; position: fixed; left: 0; right: 0; bottom: var(--dock-h); z-index: 19; background: rgba(8,6,18,.94); border-top: 1px solid var(--line); }
   .mnav a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px; color: var(--mut); text-decoration: none; font-size: 10px; font-weight: 700; }
   .mnav a svg { width: 20px; height: 20px; fill: currentColor; }
   .mnav a.on { color: #fff; }
-  :root { --dock-h: 158px; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .01s !important; transition-duration: .01s !important; }
@@ -591,6 +587,7 @@ body.loading .trow.on .num span { display: none; }
 .skel { border-radius: 8px; background: linear-gradient(100deg, rgba(255,255,255,.05) 40%, rgba(143,108,240,.14) 50%, rgba(255,255,255,.05) 60%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
 @keyframes shimmer { from { background-position: 180% 0; } to { background-position: -80% 0; } }
 .skel-row { height: 62px; margin: 8px 0; }
+body.noblur *, body.noblur *::before, body.noblur *::after { backdrop-filter: none !important; filter: none !important; }
 /* fx debug + lowfx */
 #fxdbg { position: fixed; left: 8px; bottom: 8px; z-index: 99; font: 11px/1.5 monospace; background: rgba(0,0,0,.75); color: #7f7; padding: 6px 9px; border-radius: 8px; }
 body.lowfx .ambient { animation: none; opacity: .7; }
@@ -609,3 +606,30 @@ body.lowfx .lamp-widget { animation: none; }
 .about-block { border-top: 1px dotted rgba(143,108,240,.4); margin-top: 12px; padding-top: 10px; }
 .about-h { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--acc-2); font-weight: 800; margin-bottom: 5px; }
 .about-block p:last-child { font-size: 13.5px; line-height: 1.7; color: #d9d3f2; }
+
+/* ============ mobile shell: sheets, safe-area, touch, blur ============ */
+@media (max-width: 860px) {
+  .mnav { height: calc(58px + env(safe-area-inset-bottom)); }
+  .dock { bottom: calc(58px + env(safe-area-inset-bottom)); }
+  .drawer {
+    top: auto; left: 0; right: 0; bottom: calc(var(--dock-h) + env(safe-area-inset-bottom));
+    width: auto; max-height: 62dvh; border-left: 0;
+    border-top: 1px solid var(--line); border-radius: 16px 16px 0 0;
+    animation: sheetUp .24s ease both;
+  }
+  .ctx { left: 8px !important; right: 8px; top: auto !important; bottom: calc(var(--dock-h) + env(safe-area-inset-bottom) + 8px); }
+  .ctx button { min-height: 46px; font-size: 14px; }
+  .toast { bottom: calc(var(--dock-h) + env(safe-area-inset-bottom) + 14px); }
+  .trow .acts .iconbtn, .qitem .iconbtn { width: 40px; height: 40px; }
+  .qitem .iconbtn svg { width: 19px; height: 19px; }
+  .seek { min-height: 30px; }
+  .np-tabs button { padding: 12px 10px; font-size: 14px; }
+  .iconbtn.big { width: 48px; height: 48px; }
+  .modal .btn-play, .modal .btn-ghost { min-height: 48px; }
+}
+/* balanced/battery: troca blur por opaco (barato no iPhone) */
+body.lowfx .side { background: rgba(13, 10, 26, .97); backdrop-filter: none; }
+body.lowfx .main { background: rgba(10, 7, 22, .97); backdrop-filter: none; }
+body.lowfx .dock { background: rgba(8, 6, 18, .97); backdrop-filter: none; }
+body.lowfx .np { background: rgba(6, 4, 14, .985); backdrop-filter: none; }
+body.lowfx .drawer { background: rgba(12, 9, 26, .99); backdrop-filter: none; }

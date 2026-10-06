@@ -71,6 +71,8 @@ window.FX = (() => {
   }
 
   applyPerf();
+  if (FX.iso.blur) document.body.classList.add('noblur');
+  if (FX.iso.scene) { const c = document.getElementById('scene'); if (c) c.style.display = 'none'; }
   rafId = requestAnimationFrame(frame);
   return FX;
 })();
