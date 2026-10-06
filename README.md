@@ -30,6 +30,7 @@ Letra e música com IA.
 
 ```bash
 ./serve.sh        # abre em http://localhost:8000
+make run          # atalho para o serve.sh
 ```
 
 Servidor local é necessário: a análise de áudio e o waveform não funcionam em `file://`.
