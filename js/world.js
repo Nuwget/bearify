@@ -404,11 +404,9 @@
     ctx.globalAlpha = 1;
   }
 
-  let wFrame = 0;
   function frame(now) {
-    if (window.FX && FX.paused) { requestAnimationFrame(frame); return; }
-    const lowFx = window.FX && FX.low;
-    wFrame++;
+    if (FX.iso.scene || FX.iso.all) return; // diagnóstico: cena congelada
+    const lowFx = FX.low;
 
     const dt = Math.min(0.1, (now - last) / 1000); last = now;
     const t = (now - t0) / 1000 + hashT, secs = now / 1000;
@@ -585,8 +583,6 @@
 
     // the cover thumbnail breathes at ~8fps
     if (now > coverAt) { coverAt = now + 125; drawCover(document.getElementById('coverCanvas'), t); }
-
-    requestAnimationFrame(frame);
   }
 
   addEventListener('resize', () => { clearTimeout(build.h); build.h = setTimeout(build, 120); });
@@ -598,7 +594,7 @@
   });
 
   build();
-  requestAnimationFrame(frame);
+  FX.add('scene', frame, FX.mobile ? 30 : 60);
 
   // debug: #sprites shows the sprites enlarged
   if (/sprites/.test(location.hash)) {

@@ -18,7 +18,6 @@ window.__boot = (() => {
     bodyC = Art.bearBody().canvas();
     headO = Art.bearHead(false, false).canvas();
     headC = Art.bearHead(true, false).canvas();
-    requestAnimationFrame(tick);
     // failsafe: nunca prende o app
     setTimeout(() => done(), 4000);
   }
@@ -42,7 +41,6 @@ window.__boot = (() => {
     if (msg) { const m = msgs[Math.min(msgs.length - 1, level)]; if (msg.textContent !== m) { msg.textContent = m; } }
     const pct = document.getElementById('bootPct');
     if (pct) pct.textContent = Math.round(p * 100) + '%';
-    requestAnimationFrame(tick);
   }
 
   function draw(t) {
@@ -96,6 +94,7 @@ window.__boot = (() => {
 
   function done() {
     if (doneCalled) return; doneCalled = true;
+    try { FX.remove('boot'); } catch {}
     level = N - 1;
     setTimeout(() => {
       const el = document.getElementById('boot');
@@ -108,6 +107,7 @@ window.__boot = (() => {
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+  FX.add('boot', tick, 30);
   stage(0);
   return { stage, done };
 })();

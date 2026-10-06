@@ -309,16 +309,14 @@ window.Covers = (() => {
   let ta = 0, lastT = 0;
   let cFrame = 0;
   function tick(now) {
-    if (window.FX && FX.paused) { requestAnimationFrame(tick); return; }
-    const lowFx = window.FX && FX.low;
-    if (lowFx && ((cFrame++ % 3) !== 0)) { requestAnimationFrame(tick); return; }
+    if (FX.iso.covers || FX.iso.all) return; // diagnóstico: capas congeladas
+    if (FX.low && ((cFrame++ % 2) !== 0)) return;
     const t = now / 1000, dt = Math.min(0.1, t - (lastT || t));
     lastT = t;
     if (!reduce) ta += dt * (document.body.classList.contains('playing') ? 1 : 0.06);
     document.querySelectorAll('canvas.cov').forEach((c) => draw(c, window.TRACKS[+c.dataset.i || 0] || {}, +c.dataset.i || 0, ta));
-    requestAnimationFrame(tick);
   }
-  requestAnimationFrame(tick);
+  FX.add('covers', tick, 12);
 
   return { draw, themeFor, THEMES };
 })();

@@ -11,21 +11,19 @@ window.Mascots = (() => {
     heads = [Art.bearHead(false, false).canvas(), Art.bearHead(true, false).canvas(), Art.bearHead(false, true).canvas()];
     body = Art.bearBody().canvas();
     lamp = Art.lamp().canvas();
-    requestAnimationFrame(tick);
   }
 
   function tick(now) {
-    if (window.FX && FX.paused) { requestAnimationFrame(tick); return; }
-    const gap = (window.FX && FX.low) ? 260 : (reduce ? 500 : 110);
+    if (FX.iso.all) return;
+    const gap = FX.low ? 260 : (reduce ? 500 : 110);
     const t = now / 1000, secs = t;
-    if (now - last < gap) { requestAnimationFrame(tick); return; }
+    if (now - last < gap) return;
     last = now;
     if (secs > blinkAt) { blinkUntil = secs + 0.15; blinkAt = secs + 2.4 + Math.random() * 3.4; }
     if (secs > glanceAt) { glanceUntil = secs + 1.2; glanceAt = secs + 6 + Math.random() * 6; }
     if (window.CURRENT !== seenCurrent) { seenCurrent = window.CURRENT; hopUntil = secs + 0.45; }
     drawBear(secs);
     drawLamp(t);
-    requestAnimationFrame(tick);
   }
 
   // urso ~50x56: corpo embaixo, cabeça com fones por cima
@@ -64,6 +62,7 @@ window.Mascots = (() => {
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+  FX.add('mascots', tick, 30);
   // hover na marca: o urso olha
   document.addEventListener('pointerover', (e) => { if (e.target.closest && e.target.closest('.brand')) glanceUntil = performance.now() / 1000 + 1.2; });
   return {};

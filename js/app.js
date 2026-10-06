@@ -7,8 +7,11 @@
   /* ---------- tap de análise: o som nunca é processado, só medido ---------- */
   const canAnalyse = /^https?:$/.test(location.protocol);
   let actx = null, analyser = null, freq = null, bins = null, quiet = 0;
+  window.__vizOn = false;
   function ensureAnalyser() {
     if (!canAnalyse || actx) return;
+    if (FX.iso.noviz || FX.perf !== 'full') return; // mobile/battery: níveis sintéticos, sem custo
+    window.__vizOn = true;
     try {
       const AC = window.AudioContext || window.webkitAudioContext;
       actx = new AC({ latencyHint: 'playback' });
@@ -83,14 +86,9 @@
   let metaStaged = false;
   E.bus.on('meta', () => { if (!metaStaged) { metaStaged = true; if (window.__boot) { window.__boot.stage(3); window.__boot.done(); } } });
   setTimeout(() => window.__boot && window.__boot.done(), 3500); // failsafe
-  (function tick(now) {
+  FX.add('ui', (now) => {
     const t = now / 1000;
-    if (window.FX) FX.frame(now);
-    const paused = window.FX && FX.paused;
-    if (!paused) {
-      readLevels(t);
-      if (window.UI.onTick) window.UI.onTick(E.player.el);
-    }
-    requestAnimationFrame(tick);
-  })(performance.now());
+    readLevels(t);
+    if (window.UI.onTick) window.UI.onTick(E.player.el);
+  }, 60);
 })();
