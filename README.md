@@ -2,7 +2,7 @@
 
 **[abrir no ar](https://nuwget.github.io/bearify/)** · <https://nuwget.github.io/bearify/>
 
-Uma janela pixelada à noite, com chuva, o urso de fones no parapeito e a faixa tocando. A cena é desenhada em canvas sem blur nenhum e reage à música: os fogos de artifício, as janelas da cidade e o halo da lua acompanham os graves, médios e agudos.
+Um player no estilo Spotify rodando por cima de uma cena pixelada à noite: chuva, o urso de fones no parapeito e a cidade reagindo à música. A cena é desenhada em canvas sem blur nenhum e reage à música: os fogos de artifício, as janelas da cidade e o halo da lua acompanham os graves, médios e agudos.
 
 Letra e música com IA.
 
@@ -17,14 +17,14 @@ Letra e música com IA.
 
 | Caminho | O que é |
 | --- | --- |
-| `index.html` | página principal, player e lyrics |
+| `index.html` | app shell estilo Spotify |
 | `css/style.css` | tema da noite, dock e responsivo |
 | `js/world.js` | a cena pixelada reativa ao áudio |
 | `js/art.js` | sprites, luzes e ferramentas de pixel art |
-| `js/app.js` | player, análise, waveform e lyrics |
-| `data/lyrics.js` | as linhas com `t` (começo) e `end` (fim), editáveis à mão |
+| `js/app.js` | player, lista de faixas e análise |
+| `data/tracks.js` | catálogo local de faixas |
 | `media/` | `track.m4a` e `track.mp3` |
-| `tools/transcribe.py` | gera `data/lyrics.json` com Whisper |
+| `tools/transcribe.py` | transcrição com Whisper (utilitário) |
 
 ## Desenvolvimento
 
@@ -35,7 +35,7 @@ make run          # atalho para o serve.sh
 
 Servidor local é necessário: a análise de áudio e o waveform não funcionam em `file://`.
 
-Para mudar as letras, edite `data/lyrics.js`. Para regerar a transcrição: `.venv/bin/python tools/transcribe.py`.
+Para adicionar faixas, coloque os arquivos em `media/` e liste em `data/tracks.js`.
 
 ## GitHub Pages
 

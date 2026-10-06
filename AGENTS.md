@@ -22,10 +22,10 @@ Guidelines for coding agents working in this repo.
 | `css/style.css` | night theme, dock, responsive |
 | `js/art.js` | pixel toolkit (`Art`) + bear sprites |
 | `js/world.js` | `World`: the scene, reactive to levels |
-| `js/app.js` | player, analysis, waveform, lyrics, title letters |
-| `data/lyrics.js` | synced lines (`t`, `end`, `text`), editable by hand |
+| `js/app.js` | player, track list, analysis, eq |
+| `data/tracks.js` | local track catalog |
 | `media/` | `track.m4a`, `track.mp3` |
-| `tools/transcribe.py` | Whisper transcription → `data/lyrics.json` |
+| `tools/transcribe.py` | Whisper transcription (utility) |
 
 ## Run
 
