@@ -1,0 +1,13 @@
+{
+  "name": "bearify — nuwget songs",
+  "short_name": "bearify",
+  "description": "O streaming exclusivo das songs do nuwget.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0716",
+  "theme_color": "#0a0716",
+  "icons": [
+    { "src": "media/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "media/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
