@@ -1,5 +1,5 @@
 /* bearify · bootstrap: análise de áudio (só leitura → window.Levels),
-   atalhos de teclado e o loop que move o dock, a letra e a cena. */
+   atalhos de teclado e os loops que movem o dock/letra (desktop) e o player mobile. */
 (() => {
   const E = window.Engine;
   const L = (window.Levels = window.Levels || { bass: 0, mid: 0, treble: 0 });
@@ -10,7 +10,7 @@
   window.__vizOn = false;
   function ensureAnalyser() {
     if (!canAnalyse || actx) return;
-    if (FX.iso.noviz || FX.perf !== 'full') return; // mobile/battery: níveis sintéticos, sem custo
+    if (FX.iso.noviz || FX.perf !== 'full' || FX.isMobile()) return; // mobile/battery: níveis sintéticos, sem custo
     window.__vizOn = true;
     try {
       const AC = window.AudioContext || window.webkitAudioContext;
@@ -81,9 +81,11 @@
 
   /* ---------- boot + loop ---------- */
   window.UI.init();
+  window.Mobile.init();
   FX.add('ui', (now) => {
-    const t = now / 1000;
-    readLevels(t);
-    if (window.UI.onTick) window.UI.onTick(E.player.el);
+    if (FX.isMobile()) return;
+    readLevels(now / 1000);
+    window.UI.onTick(E.player.el);
   }, 60);
+  FX.add('mobile', () => window.Mobile.onTick(E.player.el), 10); // progresso e letra: 10fps bastam
 })();

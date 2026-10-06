@@ -8,9 +8,11 @@
 <meta name="description" content="bearify — o streaming exclusivo das songs do nuwget.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"></noscript>
 <link rel="icon" type="image/svg+xml" href="media/favicon.svg">
 <link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/mobile.css" media="(max-width: 860px)">
 </head>
 <body>
 
@@ -21,7 +23,7 @@
     <canvas id="bootBear" width="96" height="64"></canvas>
     <div class="boot-dots" aria-hidden="true"><i></i><i></i><i></i></div>
   </div>
-</div></div>
+</div>
 <div class="ambient" id="ambient" aria-hidden="true"></div>
 <div id="routeBar" aria-hidden="true"></div>
 
@@ -52,13 +54,6 @@
       <p class="t" id="nowTitle">—</p>
       <p class="s" id="nowArtist">—</p>
     </div>
-    <button class="mplay" id="mPlay" type="button" aria-label="tocar ou pausar">
-      <svg class="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-      <svg class="i-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>
-    </button>
-    <button class="mplay next" id="mNext" type="button" aria-label="próxima">
-      <svg viewBox="0 0 24 24"><path d="M15 5h3v14h-3zM5 6l9 6-9 6z"/></svg>
-    </button>
     <button class="iconbtn sm" id="btnFav" type="button" aria-label="favoritar" aria-pressed="false">
       <svg viewBox="0 0 24 24"><path d="M12 21C7 16.5 3 13 3 8.8 3 6 5.2 4 7.8 4c1.7 0 3.2.9 4.2 2.3C13 4.9 14.5 4 16.2 4 18.8 4 21 6 21 8.8c0 4.2-4 7.7-9 12.2z"/></svg>
     </button>
@@ -111,11 +106,90 @@
 
 <div class="lamp-widget" aria-hidden="true"><canvas id="mascotLamp" width="20" height="38"></canvas></div>
 
-<nav class="mnav" id="mnav" aria-label="navegação móvel">
-  <a href="#/home" data-r="home"><svg viewBox="0 0 24 24"><path d="M12 3 3 10.5h2.5V21h13V10.5H21z"/></svg>Início</a>
-  <a href="#/search" data-r="search"><svg viewBox="0 0 24 24"><path d="M10 2a8 8 0 1 0 4.9 14.3l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg>Buscar</a>
-  <a href="#/library" data-r="library"><svg viewBox="0 0 24 24"><path d="M4 3h3v18H4zM10 3h3v18h-3zm5 2h3l3 16h-3z"/></svg>Biblio</a>
-</nav>
+<!-- mobile: camada própria (js/mobile.js + css/mobile.css). Desktop não vê nada daqui. -->
+<div id="m" class="m">
+  <header id="mHead" class="m-head"></header>
+  <main id="mView" class="m-view" tabindex="-1"></main>
+
+  <div id="mMini" class="m-mini" role="group" aria-label="player" inert>
+    <button class="m-mini-main" id="mMiniOpen" type="button" aria-label="abrir player">
+      <canvas class="cov m-mini-art" id="mMiniArt" data-i="0" width="32" height="32" aria-hidden="true"></canvas>
+      <span class="m-mini-t"><b id="mMiniTitle">—</b><span id="mMiniArtist">—</span></span>
+    </button>
+    <button class="m-btn m-play" id="mMiniPlay" type="button" aria-label="tocar ou pausar">
+      <svg class="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      <svg class="i-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>
+    </button>
+    <button class="m-btn m-next" id="mMiniNext" type="button" aria-label="próxima"><svg viewBox="0 0 24 24"><path d="M15 5h3v14h-3zM5 6l9 6-9 6z"/></svg></button>
+    <span class="m-mini-bar" aria-hidden="true"><i id="mMiniFill"></i></span>
+  </div>
+
+  <section id="mNP" class="m-np" data-view="player" aria-label="tocando agora" inert>
+    <div class="m-pane m-pane-player">
+      <header class="m-np-top">
+        <button class="m-btn m-ic" id="mNpClose" type="button" aria-label="fechar"><svg viewBox="0 0 24 24"><path d="M15.4 5.4 14 4l-8 8 8 8 1.4-1.4L8.8 12z"/></svg></button>
+        <p class="m-np-k">Tocando agora</p>
+        <button class="m-btn m-ic" id="mNpMore" type="button" aria-label="mais opções"><svg viewBox="0 0 24 24"><path d="M5 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg></button>
+      </header>
+      <div class="m-np-scroll">
+        <div class="m-art"><canvas class="cov" id="mNpArt" data-i="0" width="32" height="32" aria-label="capa"></canvas></div>
+        <div class="m-np-id">
+          <div class="m-np-names">
+            <p class="m-np-title" id="mNpTitle">—</p>
+            <p class="m-np-artist" id="mNpArtist">—</p>
+            <p class="m-np-album" id="mNpAlbum">—</p>
+          </div>
+          <button class="m-btn m-fav" id="mNpFav" type="button" aria-label="favoritar" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M12 21C7 16.5 3 13 3 8.8 3 6 5.2 4 7.8 4c1.7 0 3.2.9 4.2 2.3C13 4.9 14.5 4 16.2 4 18.8 4 21 6 21 8.8c0 4.2-4 7.7-9 12.2z"/></svg></button>
+        </div>
+        <p class="m-np-q" id="mNpQuality"></p>
+        <p class="m-np-state" id="mNpState" role="status"></p>
+        <div class="m-time">
+          <span id="mCur">0:00</span>
+          <div class="m-seek"><span class="m-seek-track"><i id="mSeekFill"></i></span><input id="mSeek" type="range" min="0" max="1000" value="0" aria-label="posição da música"></div>
+          <span id="mDur">0:00</span>
+        </div>
+        <div class="m-ctrls">
+          <button class="m-btn m-side" id="mShuffle" type="button" aria-label="aleatório" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M10.6 9.2 5.4 4 4 5.4l5.2 5.2zM14.5 4l2 2L4 18.6 5.4 20 18 7.5l2 2V4zm.3 9.4-1.4 1.4 3.1 3.1-2 2H20v-5.5l-2 2z"/></svg></button>
+          <button class="m-btn m-skip" id="mPrev" type="button" aria-label="anterior"><svg viewBox="0 0 24 24"><path d="M6 5h3v14H6zm4 7 9-6v12z"/></svg></button>
+          <button class="m-btn m-play m-play-xl" id="mPlay" type="button" aria-label="tocar ou pausar">
+            <svg class="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <svg class="i-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>
+          </button>
+          <button class="m-btn m-skip" id="mNext" type="button" aria-label="próxima"><svg viewBox="0 0 24 24"><path d="M15 5h3v14h-3zM5 6l9 6-9 6z"/></svg></button>
+          <button class="m-btn m-side" id="mLoop" type="button" aria-label="repetir" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2z"/></svg></button>
+        </div>
+        <button class="m-lyrcard" id="mLyrOpen" type="button">
+          <span class="m-k">Letra</span>
+          <span class="m-lyrcard-line" id="mLyrPeek"></span>
+          <span class="m-lyrcard-cta" id="mLyrCta">Expandir letra</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="m-pane m-pane-lyrics">
+      <header class="m-np-top">
+        <button class="m-btn m-ic" id="mLyrClose" type="button" aria-label="voltar ao player"><svg viewBox="0 0 24 24"><path d="M15.4 5.4 14 4l-8 8 8 8 1.4-1.4L8.8 12z"/></svg></button>
+        <div class="m-np-k m-np-k2"><p>Letra</p><span id="mLyrTrack">—</span></div>
+        <span class="m-ic-sp"></span>
+      </header>
+      <div class="m-lyr-scroll" id="mLyr"></div>
+      <footer class="m-lyr-foot">
+        <span class="m-lyr-bar" aria-hidden="true"><i id="mLyrFill"></i></span>
+        <button class="m-btn m-skip" id="mLyrPrev" type="button" aria-label="anterior"><svg viewBox="0 0 24 24"><path d="M6 5h3v14H6zm4 7 9-6v12z"/></svg></button>
+        <button class="m-btn m-play" id="mLyrPlay" type="button" aria-label="tocar ou pausar">
+          <svg class="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <svg class="i-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>
+        </button>
+        <button class="m-btn m-skip" id="mLyrNext" type="button" aria-label="próxima"><svg viewBox="0 0 24 24"><path d="M15 5h3v14h-3zM5 6l9 6-9 6z"/></svg></button>
+      </footer>
+    </div>
+  </section>
+
+  <div id="mSheet" class="m-sheet-wrap" inert>
+    <div class="m-scrim" data-m-sheet-close></div>
+    <div class="m-sheet" id="mSheetBody" role="dialog" aria-modal="true"></div>
+  </div>
+</div>
 
 <section class="np" id="np" aria-label="tocando agora" hidden>
   <div class="np-bg" id="npBg"></div>
@@ -125,7 +199,7 @@
     <button class="iconbtn" id="npMore" type="button" aria-label="mais opções">···</button>
   </header>
   <div class="np-body">
-    <div class="np-artwrap"><canvas id="npCover" width="32" height="32"></canvas></div>
+    <div class="np-artwrap"><canvas class="cov" id="npCover" data-i="0" width="32" height="32" aria-label="capa"></canvas></div>
     <div class="np-main">
       <div class="np-titlerow">
         <div class="np-names">
@@ -188,11 +262,9 @@
 <script src="js/covers.js"></script>
 <script src="js/world.js"></script>
 <script src="js/engine.js"></script>
+<script src="js/lyrics.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/mobile.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#0a0716">
-<link rel="apple-touch-icon" href="media/icon-192.png">
-<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');</script>

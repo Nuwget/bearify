@@ -1,4 +1,5 @@
-/* bearify · UI: rotas, telas, fila, letra, modais, menu de contexto. */
+/* bearify · UI desktop: rotas, telas, fila, now playing, modais, menu de contexto.
+   (o mobile tem camada própria em mobile.js; aqui só compartilha dados.) */
 window.UI = (() => {
   const E = window.Engine;
   const T = window.TRACKS, LIB = window.LIBRARY;
@@ -6,7 +7,7 @@ window.UI = (() => {
   const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const GLOW = ['rgba(91,59,176,.4)', 'rgba(30,90,168,.4)', 'rgba(200,85,61,.35)', 'rgba(71,61,110,.4)'];
   const idx = (id) => T.findIndex((t) => t.id === id);
-  const durations = {};
+  const durations = Object.fromEntries(T.filter((t) => t.dur).map((t) => [t.id, t.dur])); // iOS não carrega metadata antes do play
   const fmt = E.fmt;
 
   function toast(msg, ms = 2600) {
@@ -100,38 +101,13 @@ window.UI = (() => {
       </div>`;
   }
 
-  function mHome() {
-    const alb = LIB.ALBUMS[0];
-    const recent = E.store.recent.map((id) => E.byId[id]).filter(Boolean);
-    view.innerHTML = `
-      <header class="mhead">
-        <span class="mbrand"><strong>bearify</strong><span>nuwget songs</span></span>
-        <input class="msearch" type="search" placeholder="Buscar músicas..." aria-label="buscar">
-      </header>
-      <div class="mfeat">${thumb(E.byId[alb.tracks[0]], 'art')}
-        <div><p class="mf-t">${esc(alb.title)}</p><p class="mf-s">${esc(alb.artist)} · ${alb.year} · ${alb.tracks.length} songs</p>
-        <button class="btn-play" data-playalbum="${alb.id}"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Tocar</button></div></div>
-      <p class="mtitle">Músicas</p>
-      <div class="mlist">${T.map((t, i) => mTrackRow(t, i + 1)).join('')}</div>
-      ${recent.length ? `<p class="mtitle">Continue ouvindo</p><div class="hrow">${recent.map(trackCard).join('')}</div>` : ''}
-      <div class="mabout"><button class="btn-ghost" data-about>Quem é Nuwget?</button></div>`;
-  }
-
-  function mTrackRow(tr, n) {
-    return `<div class="mrow" data-play="${tr.id}" role="button" tabindex="0">
-      ${thumb(tr)}
-      <span class="mt"><b>${esc(tr.title)}</b><span>${esc(tr.artist)}</span></span>
-      <span class="md">${durations[tr.id] ? E.fmt(durations[tr.id]) : '—'}</span>
-    </div>`;
-  }
-
   let searchQ = '';
   function recentQ() { try { return JSON.parse(localStorage.getItem('bearify.q') || '[]'); } catch { return []; } }
   function pushQ(q) { q = q.trim(); if (!q) return; try { localStorage.setItem('bearify.q', JSON.stringify([q, ...recentQ().filter((x) => x !== q)].slice(0, 6))); } catch {} }
   function vSearch() {
     view.innerHTML = `<h1 class="hello">Buscar</h1><p class="sub">Songs, artistas, álbuns e playlists do ecossistema nuwget.</p>
       <div class="searchbar"><input id="q" type="search" placeholder="O que você quer ouvir?" value="${esc(searchQ)}" aria-label="buscar"></div><div id="sres"></div>`;
-    const q = $('q'); if (!FX.mobile) q.focus();
+    const q = $('q'); q.focus();
     q.addEventListener('input', () => { searchQ = q.value; renderSearch(); });
     q.addEventListener('keydown', (e) => { if (e.key === 'Enter') { pushQ(q.value); renderSearch(); } });
     renderSearch();
@@ -239,8 +215,9 @@ window.UI = (() => {
       <div class="actions"><button class="btn-play" data-play="${id}"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Tocar</button>
       <button class="btn-ghost" data-lyrics="${id}">Ver letra</button>
       <button class="btn-ghost" data-songinfo="${id}">Detalhes</button></div>
-      <h2 class="sec-t">Letra</h2><div id="songLyrics">${lyricsHtml(tr)}</div>
+      <h2 class="sec-t">Letra</h2><div id="songLyrics"></div>
       ${al ? `<h2 class="sec-t">Do álbum ${esc(al.title)}</h2>${al.tracks.map((x) => E.byId[x]).map((t, i) => trackRow(t, i + 1)).join('')}` : ''}`;
+    Lyrics.mount($('songLyrics'), { track: id, scroll: false });
   }
 
   function vSettings() {
@@ -278,25 +255,6 @@ window.UI = (() => {
       <p class="sub" style="margin:8px 0 0">Fonte real desta faixa: ${sources.map((s) => `${s.ext.toUpperCase()}${s.kbps ? ' ~' + s.kbps + ' kbps' : ''}`).join(' · ')}. Opções sem fonte ficam desativadas.</p>`;
   }
 
-  /* ---------------- letras ---------------- */
-  function lyricsHtml(tr) {
-    if (!tr?.lyrics?.length) return `<div class="lyr-empty"><p class="lyr-k">Lyrics</p><p class="lyr-big">Let the music speak.</p><p class="lyr-sub">sinta a cena — ela reage à música 🐻</p></div>`;
-    return tr.lyrics.map((l, i) => `<button class="lyr" data-seekto="${l.t}"><span class="lyr-orig">${esc(l.text)}</span>${l.translation ? `<span class="lyr-tr">${esc(l.translation)}</span>` : ''}</button>`).join('');
-  }
-  let lastLyr = -2, lastLyrId = '';
-  function paintLyrics(time) {
-    const tr = E.queue.current(); if (!tr?.lyrics?.length) return;
-    const k = E.lyrics.active(tr, time);
-    if (k === lastLyr && lastLyrId === tr.id) return;
-    lastLyr = k; lastLyrId = tr.id;
-    document.querySelectorAll('#npLyrics .lyr, #songLyrics .lyr').forEach((b, i) => {
-      b.classList.toggle('on', i === k);
-      b.classList.toggle('past', i < k);
-    });
-    const on = document.querySelector('#npLyrics .lyr.on');
-    if (on && !$('np').hidden) on.scrollIntoView({ block: 'center' });
-  }
-
   /* ---------------- now playing ---------------- */
   function openNP(tab = 'lyrics') {
     $('np').hidden = false;
@@ -306,13 +264,14 @@ window.UI = (() => {
   function syncNP(tab) {
     const tr = E.queue.current(); if (!tr) return;
     $('npTitle').textContent = tr.title; $('npArtist').textContent = tr.artist; $('npAlbum').textContent = tr.album;
+    $('npCover').dataset.i = idx(tr.id);
     const srcs = E.quality.cache[tr.id];
     $('npQuality').textContent = srcs && srcs[0].kbps ? `${srcs[0].label} · ~${srcs[0].kbps} kbps` : 'fonte local';
     const on = E.store.isLiked(tr.id);
     $('npFav').classList.toggle('loved', on); $('npFav').setAttribute('aria-pressed', String(on));
     const active = tab || document.querySelector('.np-tabs button.on')?.dataset.tab || 'lyrics';
     $('npLyrics').hidden = active !== 'lyrics'; $('npQueue').hidden = active !== 'queue'; $('npInfo').hidden = active !== 'info';
-    if (active === 'lyrics') { $('npLyrics').innerHTML = lyricsHtml(tr); paintLyrics(E.player.el.currentTime || 0); }
+    if (active === 'lyrics') Lyrics.reveal($('npLyrics'));
     if (active === 'queue') renderNPQueue();
     if (active === 'info') renderInfo($('npInfo'), tr);
   }
@@ -437,14 +396,11 @@ window.UI = (() => {
 
   /* ---------------- roteador ---------------- */
   function route() {
-    console.log('[UI] route hash:', location.hash);
+    if (FX.isMobile()) return; // o mobile roteia em mobile.js
     const h = location.hash || '#/home';
     const [, r, arg] = h.split('/');
     closeCtx();
-    document.querySelectorAll('#nav a, #mnav a').forEach((a) => a.classList.toggle('on', a.dataset.r === r));
-    const isMobile = window.FX?.mobile ?? matchMedia('(max-width: 860px)').matches;
-    console.log('[UI] route:', r, 'mobile:', isMobile);
-    if (r === 'home' && isMobile) { console.log('[UI] calling mHome'); mHome(); return; }
+    document.querySelectorAll('#nav a').forEach((a) => a.classList.toggle('on', a.dataset.r === r));
     if (r === 'home') vHome();
     else if (r === 'search') vSearch();
     else if (r === 'library') vLibrary();
@@ -519,7 +475,7 @@ window.UI = (() => {
       $('tCur').textContent = fmt(ct); $('tDur').textContent = fmt(d);
       if (!$('np').hidden) { $('npCur').textContent = fmt(ct); $('npDur').textContent = fmt(d); }
     }
-    if (tickN % 3 !== 0) { paintLyrics(ct); return; } // texto/letra a 60, barra a 20fps
+    if (tickN % 3 !== 0) { Lyrics.paint(ct); return; } // texto/letra a 60, barra a 20fps
     if (document.activeElement !== $('seek')) $('seek').value = frac * 1000;
     $('seekFill').style.setProperty('--p', frac.toFixed(4));
     $('seekHead').style.left = frac * 100 + '%';
@@ -529,7 +485,7 @@ window.UI = (() => {
       $('npSeekFill').style.setProperty('--p', frac.toFixed(4));
       $('npSeekHead').style.left = frac * 100 + '%';
     }
-    paintLyrics(ct);
+    Lyrics.paint(ct);
     // crossfade: agenda a troca antes do fim (desligado no iOS)
     const cf = E.effCrossfade();
     if (cf > 0 && d && d - ct < cf && d - ct > 0.2 && !el.paused && !onTick._cf) { onTick._cf = true; E.player.next(true).finally(() => (onTick._cf = false)); }
@@ -544,7 +500,7 @@ window.UI = (() => {
       if (!e.target.closest('#ctx') && !q('[data-more]')) closeCtx();
       if ((m = q('[data-like]'))) { e.stopPropagation(); const on = E.store.toggleLike(m.dataset.like); toast(on ? 'Adicionada aos favoritos 💚' : 'Removida dos favoritos'); refreshLikes(); }
       else if ((m = q('[data-more]'))) { e.stopPropagation(); const r = m.getBoundingClientRect(); openCtx(r.left, r.bottom + 6, E.byId[m.dataset.more]); }
-      else if ((m = q('[data-play]'))) { if (e.target.closest('#sres')) pushQ(searchQ); const id = m.dataset.play; if (E.queue.order.includes(id)) E.queue.idx = E.queue.order.indexOf(id); else E.queue.set(E.queue.list, id); E.player.load(E.byId[id], { autoplay: true }); openNPIfMobile(); }
+      else if ((m = q('[data-play]'))) { if (e.target.closest('#sres')) pushQ(searchQ); const id = m.dataset.play; if (E.queue.order.includes(id)) E.queue.idx = E.queue.order.indexOf(id); else E.queue.set(E.queue.list, id); E.player.load(E.byId[id], { autoplay: true }); }
       else if ((m = q('[data-playq]'))) { E.queue.idx = +m.dataset.playq; E.player.load(E.queue.current(), { autoplay: true }); }
       else if ((m = q('[data-playpl]'))) { e.stopPropagation(); const p = findPlaylist(m.dataset.playpl); E.queue.set(p.tracks, p.tracks[0]); E.player.load(E.queue.current(), { autoplay: true }); }
       else if ((m = q('[data-playalbum]'))) { const a = LIB.ALBUMS.find((x) => x.id === m.dataset.playalbum); E.queue.set(a.tracks, a.tracks[0]); E.player.load(E.queue.current(), { autoplay: true }); }
@@ -554,7 +510,6 @@ window.UI = (() => {
       else if ((m = q('[data-album]'))) location.hash = '#/album/' + m.dataset.album;
       else if ((m = q('[data-gotoalbum]'))) location.hash = '#/album/' + m.dataset.gotoalbum;
       else if ((m = q('[data-artist]'))) location.hash = '#/artist/' + m.dataset.artist;
-      else if ((m = q('[data-seekto]'))) E.player.el.currentTime = +m.dataset.seekto;
       else if ((m = q('[data-go]'))) location.hash = m.dataset.go;
       else if ((m = q('[data-qchip]'))) { searchQ = m.dataset.qchip; vSearch(); }
       else if ((m = q('[data-lib]'))) { libTab = m.dataset.lib; vLibrary(); }
@@ -617,9 +572,6 @@ window.UI = (() => {
     $('npLoop').addEventListener('click', () => { toast('Repetir: ' + E.player.cycleRepeat()); syncDock(); });
     $('npFav').addEventListener('click', () => { const tr = E.queue.current(); if (tr) { const on = E.store.toggleLike(tr.id); toast(on ? 'Adicionada aos favoritos 💚' : 'Removida dos favoritos'); refreshLikes(); if (!$('np').hidden) syncNP(); } });
     $('npSeek').addEventListener('input', () => E.player.seek($('npSeek').value / 1000));
-    $('mPlay').addEventListener('click', (e) => { e.stopPropagation(); E.player.toggle(); });
-    $('mNext').addEventListener('click', (e) => { e.stopPropagation(); E.player.next(); });
-    $('miniNow').addEventListener('click', () => openNP('lyrics'));
     $('btnQueue').addEventListener('click', () => { renderQueue(); $('queueDrawer').hidden = false; });
     $('queueClose').addEventListener('click', () => ($('queueDrawer').hidden = true));
     $('btnLyrics').addEventListener('click', () => openNP('lyrics'));
@@ -645,7 +597,7 @@ window.UI = (() => {
         st.classList.toggle('pulse', status === 'loading' || status === 'buffering');
       }
       $('btnPlay').setAttribute('aria-label', status === 'playing' ? 'pausar' : 'tocar');
-      if (status === 'error') {
+      if (status === 'error' && !FX.isMobile()) {
         openModal(`<button class="iconbtn mclose" data-x aria-label="fechar">✕</button><h2>Erro de áudio</h2><p class="msub">${esc(message || 'falha ao carregar')}</p><div class="err">Verifique se o arquivo existe em <b>media/</b> e se o site está servido por http (<b>make run</b>). <b>file://</b> bloqueia áudio e análise.</div><button class="btn-play" data-x>Tentar de novo</button>`);
       }
     });
@@ -653,23 +605,11 @@ window.UI = (() => {
     E.bus.on('likes', refreshLikes);
   }
 
-  function openNPIfMobile() { if (matchMedia('(max-width: 860px)').matches) openNP('lyrics'); }
-
-  const isStandalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
-  const isIOSSafari = isIOS && /Safari/.test(navigator.userAgent) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(navigator.userAgent);
-  function openIOSInstall() {
-    if (!isIOSSafari || isStandalone || localStorage.getItem('bearify.iosInstallSeen')) return;
-    openModal(`<button class="iconbtn mclose" data-x aria-label="fechar">✕</button><h2>Leve o Bearify com você 🐻</h2><p class="msub">Adicione à Tela de Início para abrir como app, sem o Safari no meio.</p><div class="mrow"><div>1. Toque em <b>Compartilhar</b> no Safari</div></div><div class="mrow"><div>2. Toque em <b>Adicionar à Tela de Início</b></div></div><div class="mrow"><div>3. Se aparecer, ative <b>Abrir como App da Web</b></div></div><button class="btn-play" data-x>Entendi</button>`);
-    localStorage.setItem('bearify.iosInstallSeen', '1');
-  }
-  window.__bearifyIsStandalone = isStandalone;
-  window.__bearifyIsIOS = isIOS;
   function init() {
     bind();
     renderVol();
     if (window.__boot) window.__boot.done();
-    setTimeout(openIOSInstall, 1200);
+    Lyrics.mount($('npLyrics'), { scroller: $('npLyrics'), visible: () => !$('np').hidden && !$('npLyrics').hidden });
     probeDurations();
     E.queue.set(T.map((t) => t.id), T[0].id);
     window.CURRENT = 0;
@@ -678,5 +618,6 @@ window.UI = (() => {
     syncDock(); renderQueue();
   }
 
-  return { init, onTick, toast, route, openNP };
+  const lib = { allPlaylists, findPlaylist, plTheme, durations, esc };
+  return { init, onTick, toast, route, openNP, lib };
 })();
