@@ -76,12 +76,11 @@ window.UI = (() => {
 
   function vHome() {
     const recent = E.store.recent.map((id) => E.byId[id]).filter(Boolean);
-    const alb = LIB.ALBUMS[0], feat = E.byId[alb.tracks[0]];
-    const mixes = allPlaylists();
+    const alb = LIB.ALBUMS[0];
     view.innerHTML = `
       <h1 class="hello">${greeting()} 🐻</h1><p class="sub">bearify · nuwget songs — seu streaming exclusivo.</p>
       <div class="fhero">
-        <canvas class="cov fh" data-i="${idx(feat.id)}" width="32" height="32" aria-hidden="true"></canvas>
+        <canvas class="cov fh" data-i="0" width="32" height="32" aria-hidden="true"></canvas>
         <div class="fmeta"><p class="fk">Em destaque · álbum</p><h2>${esc(alb.title)}</h2>
         <p class="fm">${esc(alb.artist)} · ${alb.year} · ${alb.tracks.length} songs</p>
         ${alb.tagline ? `<p class="tagline">${esc(alb.tagline)}</p>` : ''}
@@ -91,19 +90,13 @@ window.UI = (() => {
           <button class="btn-ghost" data-album="${alb.id}">Abrir álbum</button>
         </div></div>
       </div>
-      ${LIB.ALBUMS.map((a) => `<h2 class="sec-t">${esc(a.title)}<small>álbum · ${a.year}</small></h2>${a.tracks.map((x) => E.byId[x]).map((t, i) => trackRow(t, i + 1)).join('')}`).join('')}
-      <h2 class="sec-t">Atalhos rápidos</h2>
-      <div class="quick">${T.map((tr) => `<button class="qcard" data-play="${tr.id}">${thumb(tr)}<span>${esc(tr.title)}</span><span class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></button>`).join('')}</div>
-      ${recent.length ? `<h2 class="sec-t">Tocadas recentemente</h2><div class="hrow">${recent.map(trackCard).join('')}</div>` : ''}
-      <h2 class="sec-t">Feito pra você<small>${mixes.length} playlists</small></h2>
-      <div class="hrow">${mixes.map((p) => `<div class="card" data-pl="${p.id}" role="button" tabindex="0"><div class="artw">${plThumb(p, 'art')}<span class="hov"><button data-playpl="${p.id}" aria-label="tocar playlist"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></span></div><p class="ct">${esc(p.name)}</p><p class="cs">${p.tracks.length} songs</p></div>`).join('')}</div>
-      <h2 class="sec-t">Lançamentos</h2>
-      <div class="hrow">${LIB.ALBUMS.map((a) => { const f = E.byId[a.tracks[0]]; return `<div class="card" data-album="${a.id}" role="button" tabindex="0"><div class="artw">${thumb(f, 'art')}</div><p class="ct">${esc(a.title)}</p><p class="cs">${esc(a.artist)} · ${a.year}</p></div>`; }).join('')}</div>
-      <h2 class="sec-t">Mais do nuwget</h2>
+      <h2 class="sec-t">${esc(alb.title)}<small>tracklist</small></h2>
+      ${alb.tracks.map((x) => E.byId[x]).map((t, i) => trackRow(t, i + 1)).join('')}
+      ${recent.length ? `<h2 class="sec-t">Continue ouvindo</h2><div class="hrow">${recent.map(trackCard).join('')}</div>` : ''}
+      <h2 class="sec-t">Conheça o universo Nuwget</h2>
       <div class="hrow">
-        <div class="card" data-artist="nuwget" role="button" tabindex="0"><div class="artw">${thumb(T[0], 'art')}</div><p class="ct">nuwget</p><p class="cs">artista</p></div>
-        <div class="card" data-pl="liked" role="button" tabindex="0"><div class="artw">${thumb(T[2], 'art')}</div><p class="ct">Liked Songs</p><p class="cs">${E.store.likes.length} favoritas</p></div>
-        <div class="card" data-go="#/settings" role="button" tabindex="0"><div class="artw">${thumb(T[3], 'art')}</div><p class="ct">Áudio & qualidade</p><p class="cs">configurações</p></div>
+        <div class="card ed" data-about role="button" tabindex="0"><div class="artw">${plThumb({ id: 'pl-madrugada', tracks: [] }, 'art')}</div><p class="ct">Quem é Nuwget?</p><p class="cs">o universo por trás do bearify</p></div>
+        <div class="card ed" data-artist="nuwget" role="button" tabindex="0"><div class="artw">${thumb(T[0], 'art')}</div><p class="ct">nuwget</p><p class="cs">abrir artista</p></div>
       </div>`;
   }
 
@@ -159,7 +152,9 @@ window.UI = (() => {
     view.innerHTML = `<h1 class="hello">Sua Biblioteca</h1><p class="sub">${T.length} songs · ${LIB.ALBUMS.length} álbum · ${LIB.ARTISTS.length} artista</p>
       <div class="tabs">${['playlists', 'albums', 'artists', 'songs'].map((t) => `<button data-lib="${t}" class="${libTab === t ? 'on' : ''}">${{ playlists: 'Playlists', albums: 'Álbuns', artists: 'Artistas', songs: 'Songs' }[t]}</button>`).join('')}</div>
       <div class="chips">${['all', 'liked', 'recent'].map((c) => `<button data-chip="${c}" class="${libFilter === c ? 'on' : ''}">${{ all: 'Todas', liked: 'Favoritas', recent: 'Recentes' }[c]}</button>`).join('')}</div>
-      <div id="libBody"></div>`;
+      <div id="libBody"></div>
+      <h2 class="sec-t">Feito pra você</h2>
+      <div class="hrow">${allPlaylists().slice(0, 4).map((pl) => `<div class="card" data-pl="${pl.id}"><div class="artw">${plThumb(pl, 'art')}</div><p class="ct">${esc(pl.name)}</p><p class="cs">${pl.tracks.length} songs</p></div>`).join('')}</div>`;
     renderLibBody();
   }
   function libTracks() {
@@ -380,6 +375,15 @@ window.UI = (() => {
     openModal(`<button class="iconbtn mclose" data-x aria-label="fechar">✕</button><h2>Qualidade de áudio</h2><p class="msub">Ligada às fontes reais desta faixa. Trocar preserva a posição.</p><div id="mQ"></div>`);
     renderQualityTiers($('mQ'));
   }
+  function openAbout() {
+    openModal(`<div class="about-art"><canvas class="cov" data-theme="collage" width="32" height="32"></canvas></div>
+      <p class="msub about-k">O universo por trás do Bearify</p><h2>Quem é Nuwget?</h2>
+      <p class="about-t">Nuwget é o artista por trás do catálogo do Bearify — um espaço criado para reunir suas songs em um streaming próprio.</p>
+      <p class="about-t">Aqui, música e tecnologia caminham juntas: as músicas e letras fazem parte de um processo criativo com participação de IA e de seus agentes.</p>
+      <p class="about-t">O Bearify nasceu como esse pequeno universo: um lugar para ouvir, descobrir e viver as songs do Nuwget com uma experiência feita especialmente para elas.</p>
+      <p class="about-sign">BEARIFY · NUWGET SONGS<br><span>made with heart 💜</span></p>
+      <button class="btn-play" data-about-play><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Ouvir agora</button>`);
+  }
   function openDevices() {
     openModal(`<button class="iconbtn mclose" data-x aria-label="fechar">✕</button><h2>Dispositivos</h2><p class="msub">Saída de áudio.</p>
       <div class="mrow"><div>Este dispositivo<small>navegador — disponível</small></div><b style="color:var(--grn)">● ativo</b></div>
@@ -409,6 +413,8 @@ window.UI = (() => {
     else if (r === 'settings') vSettings();
     else vHome();
     renderSide();
+    document.body.classList.remove('routing'); void document.body.offsetWidth; document.body.classList.add('routing');
+    setTimeout(() => document.body.classList.remove('routing'), 300);
     $('view').scrollTop = 0;
     view.classList.remove('enter'); void view.offsetWidth; view.classList.add('enter');
   }
@@ -521,6 +527,8 @@ window.UI = (() => {
       else if ((m = q('[data-xf]'))) { const p = E.store.prefs; p.crossfade = +m.dataset.xf; E.store.prefs = p; vSettings(); toast('Crossfade: ' + (p.crossfade ? p.crossfade + 's' : 'off')); }
       else if ((m = q('[data-pref]'))) { const p = E.store.prefs; const k = m.dataset.pref; p[k] = !p[k]; E.store.prefs = p; m.setAttribute('aria-checked', String(p[k])); }
       else if ((m = q('[data-qrm]'))) { e.stopPropagation(); E.queue.remove(+m.dataset.qrm); renderQueue(); }
+      else if ((m = q('[data-about]'))) openAbout();
+      else if ((m = q('[data-about-play]'))) { closeModal(); location.hash = '#/home'; const a = LIB.ALBUMS[0]; E.queue.set(a.tracks, a.tracks[0]); E.player.load(E.queue.current(), { autoplay: true }); }
       else if ((m = q('[data-x]')) || e.target.id === 'modalWrap') closeModal();
       else if ((m = q('[data-lyrics]'))) openNP('lyrics');
       else if ((m = q('[data-songinfo]'))) openSongInfo(E.byId[m.dataset.songinfo]);

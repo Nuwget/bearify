@@ -544,3 +544,29 @@ body.loading .trow.on .num span { display: none; }
 .skel-row { height: 62px; margin: 8px 0; }
 .skel-card { height: 120px; }
 .skel-line { height: 14px; margin: 10px 0; }
+
+/* ============ quem é nuwget + home editorial ============ */
+.about-sec { margin-top: auto; }
+.modal { animation: modalIn .22s ease both; }
+@keyframes modalIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+.modal-wrap { animation: fadeUp .2s ease both; }
+.about-art { display: grid; place-items: center; margin-bottom: 6px; }
+.about-art canvas { width: 120px; height: 120px; border-radius: 14px; image-rendering: pixelated; box-shadow: 0 14px 44px rgba(0,0,0,.55), 0 0 50px rgba(143,108,240,.3); }
+.about-k { text-align: center; margin: 12px 0 2px; }
+.modal h2 { text-align: center; font-size: 26px; }
+.about-t { font-size: 14px; line-height: 1.75; color: #d9d3f2; margin: 12px 0; }
+.about-sign { text-align: center; font-size: 11px; letter-spacing: .22em; font-weight: 800; color: var(--mut); margin: 18px 0 16px; }
+.about-sign span { color: var(--acc-2); letter-spacing: .06em; font-style: italic; }
+.modal .btn-play { width: 100%; justify-content: center; }
+/* transição de rota: barrinha rápida */
+body.routing #routeBar { opacity: 1; animation: routefast .3s ease forwards; }
+@keyframes routefast { from { width: 0; } to { width: 100%; } }
+/* card editorial */
+.card.ed .artw { box-shadow: 0 0 0 1px rgba(143,108,240,.35), 0 8px 26px rgba(91,59,176,.35); }
+
+@media (max-width: 860px) {
+  /* modal vira bottom sheet */
+  .modal-wrap { place-items: end center; padding: 0; }
+  .modal { width: 100%; max-height: 88dvh; border-radius: 18px 18px 0 0; padding: 20px 20px calc(20px + env(safe-area-inset-bottom)); animation: sheetUp .26s ease both; }
+  @keyframes sheetUp { from { opacity: .4; transform: translateY(60px); } to { opacity: 1; transform: none; } }
+}
