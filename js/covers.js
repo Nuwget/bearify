@@ -314,7 +314,8 @@ window.Covers = (() => {
     const t = now / 1000, dt = Math.min(0.1, t - (lastT || t));
     lastT = t;
     if (!reduce) ta += dt * (document.body.classList.contains('playing') ? 1 : 0.06);
-    document.querySelectorAll('canvas.cov').forEach((c) => draw(c, window.TRACKS[+c.dataset.i || 0] || {}, +c.dataset.i || 0, ta));
+    // só as capas da camada visível (mobile = #m; desktop = o resto)
+    document.querySelectorAll(FX.isMobile() ? '#m canvas.cov' : 'canvas.cov:not(#m canvas)').forEach((c) => draw(c, window.TRACKS[+c.dataset.i || 0] || {}, +c.dataset.i || 0, ta));
   }
   FX.add('covers', tick, 12);
 

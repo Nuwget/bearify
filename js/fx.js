@@ -9,13 +9,15 @@ window.FX = (() => {
   const q = location.search + ' ' + location.hash;
   const has = (k) => new RegExp('[?#&]' + k + '(=1|\\b)').test(q);
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const mobile = matchMedia('(max-width: 860px)').matches;
+  const mq = matchMedia('(max-width: 860px)');
+  const mobile = mq.matches;
   const stored = (() => { try { return localStorage.getItem('bearify.perf'); } catch { return null; } })();
   const perf = stored || (mobile ? 'balanced' : 'full');
 
   const FX = {
     paused: document.hidden, low: reduce, fps: 60, ms: 16.7, loops: 0,
-    perf, mobile, reduce,
+    perf, mobile, reduce, mq,
+    isMobile: () => mq.matches, // ao vivo: o site troca de layout ao girar o aparelho
     iso: { scene: /[?#&]scene=off\b/.test(q), covers: /[?#&]covers=off\b/.test(q), all: /[?#&](fx|effects)=off\b/.test(q), blur: /[?#&]blur=off\b/.test(q), noviz: /[?#&]noviz\b/.test(q) },
   };
   const subs = new Map(); // name -> {fn, fps, acc, last}
@@ -70,6 +72,12 @@ window.FX = (() => {
     }
   }
 
+  mq.addEventListener('change', () => {
+    document.body.classList.toggle('is-mobile', mq.matches);
+    if (window.UI) UI.route();
+    if (window.Mobile) Mobile.route();
+  });
+  document.body.classList.toggle('is-mobile', mq.matches);
   applyPerf();
   if (FX.iso.blur) document.body.classList.add('noblur');
   if (FX.iso.scene) { const c = document.getElementById('scene'); if (c) c.style.display = 'none'; }

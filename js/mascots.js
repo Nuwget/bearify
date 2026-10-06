@@ -14,7 +14,7 @@ window.Mascots = (() => {
   }
 
   function tick(now) {
-    if (FX.iso.all) return;
+    if (FX.iso.all || FX.isMobile()) return;
     const gap = FX.low ? 260 : (reduce ? 500 : 110);
     const t = now / 1000, secs = t;
     if (now - last < gap) return;

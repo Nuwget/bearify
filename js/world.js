@@ -405,7 +405,7 @@
   }
 
   function frame(now) {
-    if (FX.iso.scene || FX.iso.all) return; // diagnóstico: cena congelada
+    if (FX.iso.scene || FX.iso.all || FX.isMobile()) return; // diagnóstico / mobile: sem cena
     const lowFx = FX.low;
 
     const dt = Math.min(0.1, (now - last) / 1000); last = now;

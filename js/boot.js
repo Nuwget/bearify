@@ -3,6 +3,8 @@
    0 parse → 1 UI pronta → 2 fontes → 3 primeiro áudio → 100%.
    window.__boot = { stage(n), done() }. */
 window.__boot = (() => {
+  // mobile abre direto na Home: sem splash
+  if (FX.isMobile()) { document.getElementById('boot')?.remove(); return { stage() {}, done() {} }; }
   const born = performance.now();
   let doneCalled = false;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
