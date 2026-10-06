@@ -132,3 +132,6 @@ body.playing .play .i-play { display: none; }
   .now { justify-content: center; }
   .vol-row { justify-content: center; }
 }
+
+canvas.cov { image-rendering: pixelated; display: block; }
+.thumb { width: 38px; height: 38px; border-radius: 6px; }

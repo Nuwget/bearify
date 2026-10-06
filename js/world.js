@@ -311,6 +311,7 @@
 
   /* ---------------------------------------------------------------- cover art (a little animated window) */
   function drawCover(c, t) {
+    if (window.Covers && window.TRACKS && window.TRACKS.length) { window.Covers.draw(c, window.TRACKS[window.CURRENT || 0], window.CURRENT || 0, t); return; }
     if (!c) return;
     const n = 32; if (c.width !== n) { c.width = n; c.height = n; }
     const g = c.getContext('2d');

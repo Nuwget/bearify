@@ -60,14 +60,18 @@
   const listEl = $('trackList').querySelector('tbody');
   TRACKS.forEach((tr, i) => {
     const row = document.createElement('tr');
-    row.innerHTML = `<td class="num">${i + 1}</td><td class="t"><b>${tr.title}</b><br><span style="color:#9a9ab0;font-size:12px">${tr.artist}</span></td><td style="color:#9a9ab0">${tr.album}</td><td class="dur">—</td>`;
+    row.innerHTML = `<td><canvas class="cov thumb" data-i="${i}" width="32" height="32"></canvas></td><td class="num">${i + 1}</td><td class="t"><b>${tr.title}</b><br><span style="color:#9a9ab0;font-size:12px">${tr.artist}</span></td><td style="color:#9a9ab0">${tr.album}</td><td class="dur">—</td>`;
     row.addEventListener('click', () => load(i).then(play));
     listEl.appendChild(row);
   });
-  document.querySelector('[data-play-first]').addEventListener('click', (e) => { e.preventDefault(); load(0).then(play); });
+  document.querySelectorAll('.card').forEach((c) => c.addEventListener('click', (e) => {
+    e.preventDefault();
+    const i = +(c.querySelector('.cov')?.dataset.i) || 0;
+    load(i).then(play);
+  }));
 
   function load(i) {
-    current = i;
+    current = i; window.CURRENT = i;
     const tr = TRACKS[i];
     audio.innerHTML = `<source src="${tr.base}.m4a" type='audio/mp4; codecs="opus"'><source src="${tr.base}.mp3" type="audio/mpeg">`;
     audio.load();
