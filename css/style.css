@@ -633,3 +633,13 @@ body.lowfx .main { background: rgba(10, 7, 22, .97); backdrop-filter: none; }
 body.lowfx .dock { background: rgba(8, 6, 18, .97); backdrop-filter: none; }
 body.lowfx .np { background: rgba(6, 4, 14, .985); backdrop-filter: none; }
 body.lowfx .drawer { background: rgba(12, 9, 26, .99); backdrop-filter: none; }
+
+/* boot rápido: logo + cena + 3 pixels */
+.boot-inner { gap: 16px; }
+#bootBear { width: min(216px, 56vw); height: auto; aspect-ratio: 3/2; }
+.boot-dots { display: flex; gap: 7px; }
+.boot-dots i { width: 8px; height: 8px; border-radius: 2px; background: rgba(255,255,255,.14); animation: dotup 1s ease infinite; }
+.boot-dots i:nth-child(2) { animation-delay: .18s; }
+.boot-dots i:nth-child(3) { animation-delay: .36s; }
+@keyframes dotup { 0%, 100% { background: rgba(255,255,255,.14); transform: none; } 40% { background: var(--acc); transform: translateY(-3px); } }
+#boot.done { transition: opacity .3s ease; }

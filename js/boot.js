@@ -3,13 +3,12 @@
    0 parse → 1 UI pronta → 2 fontes → 3 primeiro áudio → 100%.
    window.__boot = { stage(n), done() }. */
 window.__boot = (() => {
-  const N = 5;
-  let level = 0, t0 = performance.now(), born = t0, doneCalled = false;
-  const msgs = ['acordando o Bearify…', 'carregando suas songs…', 'preparando a madrugada…', 'afinando o player…', 'quase lá…'];
+  const born = performance.now();
+  let doneCalled = false;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   let bear, ear, bodyC, headO, headC;
-  let blinkAt = 1.8, blinkUntil = 0, glanceUntil = 0, hopUntil = 0;
+  let blinkAt = 1.8, blinkUntil = 0;
 
   function init() {
     bear = document.getElementById('bootBear');
@@ -26,21 +25,8 @@ window.__boot = (() => {
 
   function tick(now) {
     const el = document.getElementById('boot');
-    if (!el || el.classList.contains('done')) return;
-    const t = (now - born) / 1000;
-    draw(t);
-    // barra + msg refletem o estágio real
-    const p = Math.min(1, level / (N - 1) + Math.min(0.12, (now - t0) / 8000));
-    const bar = document.getElementById('bootFill');
-    if (bar) {
-      const segs = 12, on = Math.round(p * segs);
-      bar.innerHTML = '';
-      for (let i = 0; i < segs; i++) { const s = document.createElement('i'); if (i < on) s.className = 'on'; bar.appendChild(s); }
-    }
-    const msg = document.getElementById('bootMsg');
-    if (msg) { const m = msgs[Math.min(msgs.length - 1, level)]; if (msg.textContent !== m) { msg.textContent = m; } }
-    const pct = document.getElementById('bootPct');
-    if (pct) pct.textContent = Math.round(p * 100) + '%';
+    if (!el || el.classList.contains('done') || !bear) return;
+    draw((now - born) / 1000);
   }
 
   function draw(t) {
@@ -67,12 +53,12 @@ window.__boot = (() => {
     }
     // parapeito + luminária quente
     g.fillStyle = '#05030f'; g.fillRect(0, 44, W, 4);
-    g.fillStyle = `rgba(255,170,80,${0.35 + Math.min(0.3, (level / 4) * 0.3)})`; g.fillRect(4, 37, 5, 5);
+    g.fillStyle = 'rgba(255,170,80,.4)'; g.fillRect(4, 37, 5, 5);
     g.fillStyle = '#ffb86b'; g.fillRect(6, 39, 2, 2);
     // o urso sentado olhando a cidade (acorda com o progresso)
     if (t > blinkAt) { blinkUntil = t + 0.15; blinkAt = t + 2 + Math.random() * 3; }
     const hop = t < hopUntil ? 2 : 0;
-    const wake = 0.4 + (level / 4) * 0.6; // cena "acorda" com o progresso real
+    const wake = 1;
     g.globalAlpha = wake;
     const bx = 62, by = 30 - hop;
     g.drawImage(bodyC, bx - 8, by + 8, 19, 12);
@@ -84,30 +70,22 @@ window.__boot = (() => {
     g.fillStyle = 'rgba(4,2,12,.35)'; g.fillRect(0, 0, W, 2); g.fillRect(0, H - 2, W, 2);
   }
 
-  function stage(n) {
-    if (n > level) {
-      level = n; t0 = performance.now();
-      glanceUntil = level; // o urso olha p/ a barra a cada avanço
-      if (n >= N - 1) { hopUntil = (performance.now() - born) / 1000 + 0.4; }
-    }
-  }
-
+  function stage(n) {}
   function done() {
     if (doneCalled) return; doneCalled = true;
     try { FX.remove('boot'); } catch {}
-    level = N - 1;
+    const wait = Math.max(0, 250 - (performance.now() - born));
     setTimeout(() => {
       const el = document.getElementById('boot');
       if (!el) return;
-      el.classList.add('s1');
-      setTimeout(() => el.classList.add('s2'), 180);
-      setTimeout(() => { el.classList.add('done'); setTimeout(() => el.remove(), 650); }, 380);
-    }, 350);
+      el.classList.add('done');
+      setTimeout(() => el.remove(), 400);
+    }, wait);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
   FX.add('boot', tick, 30);
-  stage(0);
+  setTimeout(() => { try { done(); } catch {} }, 5000);
   return { stage, done };
 })();

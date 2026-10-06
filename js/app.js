@@ -81,11 +81,6 @@
 
   /* ---------- boot + loop ---------- */
   window.UI.init();
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => window.__boot && window.__boot.stage(2));
-  else if (window.__boot) window.__boot.stage(2);
-  let metaStaged = false;
-  E.bus.on('meta', () => { if (!metaStaged) { metaStaged = true; if (window.__boot) { window.__boot.stage(3); window.__boot.done(); } } });
-  setTimeout(() => window.__boot && window.__boot.done(), 3500); // failsafe
   FX.add('ui', (now) => {
     const t = now / 1000;
     readLevels(t);

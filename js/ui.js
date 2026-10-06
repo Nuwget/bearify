@@ -627,7 +627,7 @@ window.UI = (() => {
   function init() {
     bind();
     renderVol();
-    if (window.__boot) window.__boot.stage(1);
+    if (window.__boot) window.__boot.done();
     probeDurations();
     E.queue.set(T.map((t) => t.id), T[0].id);
     window.CURRENT = 0;
