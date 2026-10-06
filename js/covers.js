@@ -79,28 +79,42 @@ window.Covers = (() => {
     for (let y = 0; y < 6; y++) g.fillRect(rx - 1 + (y % 2), cy + 2 + y, 2, 1);
   }
 
-  /* -------- TIME: quarto do relógio -------- */
+  /* -------- TIME: quarto do relógio (cena completa) -------- */
   function time(g, n, t, seed) {
     const e = E();
-    sky(g, n, ['#2a0f2e', '#7b2d4e', '#7b2d4e']);
+    sky(g, n, ['#2a0f2e', '#5c1f42', '#5c1f42']);
+    // janela com lua e chuva à direita
+    g.fillStyle = '#170a24'; g.fillRect(21, 2, 10, 11);
+    g.fillStyle = '#0d1440'; g.fillRect(22, 3, 8, 9);
+    g.fillStyle = 'rgba(255,240,200,.28)'; g.fillRect(25, 4, 5, 5);
+    g.fillStyle = '#ffedb8'; g.fillRect(26, 5, 3, 3);
+    const rr = rng(seed + 31);
+    for (let i = 0; i < 4; i++) { const x = 22 + rr() * 8, y = 3 + ((rr() * 9 + t * 22) % 9); g.fillStyle = 'rgba(170,180,255,.6)'; g.fillRect(x, y, 1, 2); }
+    g.fillStyle = '#170a24'; g.fillRect(25, 3, 1, 9); g.fillRect(22, 7, 8, 1);
     // feixe quente da janela + poeira
-    g.fillStyle = `rgba(255,210,122,${0.14 + e * 0.1})`;
-    for (let i = 0; i < 10; i++) g.fillRect(20 + i, 2 + i, 2, 1);
+    g.fillStyle = `rgba(255,210,122,${0.13 + e * 0.1})`;
+    for (let i = 0; i < 10; i++) g.fillRect(19 + i, 12 + Math.round(i * 0.8), 2, 1);
     const r = rng(seed);
-    for (let i = 0; i < 4; i++) { const x = 20 + r() * 10, y = (r() * 20 + t * 5) % 22; g.fillStyle = '#ffd27a'; g.fillRect(x, y, 1, 1); }
-    // relógio: ponteiros andam de verdade
-    const cx = 11, cy = 15, R = 9;
+    for (let i = 0; i < 4; i++) { const x = 18 + r() * 10, y = 12 + ((r() * 10 + t * 5) % 10); g.fillStyle = '#ffd27a'; g.fillRect(x, y, 1, 1); }
+    // relógio: ponteiros andam de verdade, quase meia-noite
+    const cx = 10, cy = 13, R = 8;
+    g.fillStyle = `rgba(255,217,138,${0.22 + e * 0.2})`; g.beginPath(); g.arc(cx, cy, R + 2, 0, 7); g.fill();
     g.fillStyle = '#ffd98a'; g.beginPath(); g.arc(cx, cy, R, 0, 7); g.fill();
     g.fillStyle = '#2a0f2e'; g.beginPath(); g.arc(cx, cy, R - 2, 0, 7); g.fill();
-    const hand = (ang, len) => { g.strokeStyle = '#ffd98a'; g.lineWidth = 1; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(ang) * len, cy + Math.sin(ang) * len); g.stroke(); };
-    hand(-Math.PI / 2 + (t * 0.05) % 6.28, R - 4);       // hora, quase meia-noite
-    hand(-Math.PI / 2 + (t * 0.5) % 6.28, R - 3);          // minuto
-    g.strokeStyle = '#f06a5a'; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(t * 2) * (R - 3), cy + Math.sin(t * 2) * (R - 3)); g.stroke();
+    g.fillStyle = '#ffd98a';
+    for (let k = 0; k < 12; k++) { const a = (k / 12) * 6.28; g.fillRect(Math.round(cx + Math.cos(a) * (R - 3)), Math.round(cy + Math.sin(a) * (R - 3)), 1, 1); }
+    const hand = (ang, len, c) => { g.strokeStyle = c; g.lineWidth = 1; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(ang) * len, cy + Math.sin(ang) * len); g.stroke(); };
+    hand(-Math.PI / 2 + (t * 0.05) % 6.28, R - 4, '#ffd98a');
+    hand(-Math.PI / 2 + (t * 0.5) % 6.28, R - 3, '#ffe9b8');
+    hand(t * 2, R - 3, '#f06a5a');
     g.fillStyle = '#ffd98a'; g.fillRect(cx - 1, cy - 1, 2, 2);
-    // papéis/fotos na mesa
-    g.fillStyle = '#07041a'; g.fillRect(0, n - 6, n, 6);
-    g.fillStyle = '#d9d3f2'; g.fillRect(3, n - 5, 6, 4); g.fillStyle = '#7b2d4e'; g.fillRect(4, n - 4, 4, 1);
-    g.fillStyle = '#b8a0f2'; g.fillRect(11, n - 5, 5, 4);
+    // prateleira com livros + mesa com papéis
+    g.fillStyle = '#170a24'; g.fillRect(1, 22, 12, 1);
+    const cols = ['#b062b6', '#4aa3df', '#c0395a'];
+    cols.forEach((c, i) => { g.fillStyle = c; g.fillRect(2 + i * 3, 18 + (i === 1 ? 1 : 0), 2, 4 - (i === 1 ? 1 : 0)); });
+    g.fillStyle = '#07041a'; g.fillRect(0, n - 5, n, 5);
+    g.fillStyle = '#d9d3f2'; g.fillRect(3, n - 4, 6, 3); g.fillStyle = '#7b2d4e'; g.fillRect(4, n - 3, 4, 1);
+    g.fillStyle = '#b8a0f2'; g.fillRect(11, n - 4, 5, 3);
   }
 
   /* -------- SILENT: toca-discos sozinho -------- */

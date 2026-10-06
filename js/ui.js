@@ -257,7 +257,7 @@ window.UI = (() => {
 
   /* ---------------- letras ---------------- */
   function lyricsHtml(tr) {
-    if (!tr?.lyrics?.length) return `<div class="lyr-empty">Esta faixa ainda não tem letra sincronizada.<br>Ouça e sinta — a cena reage à música mesmo assim. 🐻</div>`;
+    if (!tr?.lyrics?.length) return `<div class="lyr-empty"><p class="lyr-k">Lyrics</p><p class="lyr-big">Let the music speak.</p><p class="lyr-sub">sinta a cena — ela reage à música 🐻</p></div>`;
     return tr.lyrics.map((l, i) => `<button class="lyr" data-seekto="${l.t}">${esc(l.text)}</button>`).join('');
   }
   function paintLyrics(time) {
@@ -567,13 +567,18 @@ window.UI = (() => {
     $('nowTitle').addEventListener('click', () => openNP());
     $('npClose').addEventListener('click', () => ($('np').hidden = true));
     $('npMore').addEventListener('click', (e) => { const r = e.target.getBoundingClientRect(); openCtx(r.left - 200, r.bottom + 6, E.queue.current()); });
-    document.querySelectorAll('.np-tabs button').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('.np-tabs button').forEach((x) => x.classList.toggle('on', x === b)); $('np').classList.toggle('lyr', b.dataset.tab === 'lyrics'); syncNP(b.dataset.tab); }));
+    document.querySelectorAll('.np-tabs button').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('.np-tabs button').forEach((x) => x.classList.toggle('on', x === b)); $('np').classList.toggle('lyr', b.dataset.tab === 'lyrics'); const pn = document.querySelector('.np-panels'); pn.classList.remove('swap'); void pn.offsetWidth; pn.classList.add('swap'); syncNP(b.dataset.tab); }));
     $('npArtist').addEventListener('click', () => { $('np').hidden = true; location.hash = '#/artist/' + E.queue.current().artistId; });
     // engine events
     E.bus.on('track', () => { syncDock(); syncQuality(); renderQueue(); if (!$('np').hidden) syncNP(); });
     E.bus.on('queue', renderQueue);
     E.bus.on('status', ({ status, message }) => {
       document.body.classList.toggle('playing', status === 'playing');
+      const st = $('npState');
+      if (st) {
+        st.textContent = status === 'loading' ? 'carregando…' : status === 'buffering' ? 'buffering…' : status === 'error' ? message || 'erro de áudio' : '';
+        st.classList.toggle('pulse', status === 'loading' || status === 'buffering');
+      }
       $('btnPlay').setAttribute('aria-label', status === 'playing' ? 'pausar' : 'tocar');
       if (status === 'error') {
         openModal(`<button class="iconbtn mclose" data-x aria-label="fechar">✕</button><h2>Erro de áudio</h2><p class="msub">${esc(message || 'falha ao carregar')}</p><div class="err">Verifique se o arquivo existe em <b>media/</b> e se o site está servido por http (<b>make run</b>). <b>file://</b> bloqueia áudio e análise.</div><button class="btn-play" data-x>Tentar de novo</button>`);
