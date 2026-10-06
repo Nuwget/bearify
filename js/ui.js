@@ -64,29 +64,56 @@ window.UI = (() => {
 
   function vHome() {
     const recent = E.store.recent.map((id) => E.byId[id]).filter(Boolean);
+    const alb = LIB.ALBUMS[0], feat = E.byId[alb.tracks[0]];
     const mixes = allPlaylists();
     view.innerHTML = `
       <h1 class="hello">${greeting()} 🐻</h1><p class="sub">bearify · nuwget songs — seu streaming exclusivo.</p>
+      <div class="fhero">
+        <canvas class="cov fh" data-i="${idx(feat.id)}" width="32" height="32" aria-hidden="true"></canvas>
+        <div class="fmeta"><p class="fk">Em destaque · álbum</p><h2>${esc(alb.title)}</h2>
+        <p class="fm">${esc(alb.artist)} · ${alb.year} · ${alb.tracks.length} songs</p>
+        <div class="actions">
+          <button class="btn-play" data-playalbum="${alb.id}"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Tocar</button>
+          <button class="btn-ghost" data-shufflealbum="${alb.id}">Aleatório</button>
+          <button class="btn-ghost" data-album="${alb.id}">Abrir álbum</button>
+        </div></div>
+      </div>
+      <h2 class="sec-t">Atalhos rápidos</h2>
       <div class="quick">${T.map((tr) => `<button class="qcard" data-play="${tr.id}">${thumb(tr)}<span>${esc(tr.title)}</span><span class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></button>`).join('')}</div>
-      <h2 class="sec-t">Tocadas recentemente</h2>
-      ${recent.length ? `<div class="hrow">${recent.map(trackCard).join('')}</div>` : `<div class="empty"><b>Nada por aqui ainda</b>Dê play em alguma song e ela aparece aqui.</div>`}
+      ${recent.length ? `<h2 class="sec-t">Tocadas recentemente</h2><div class="hrow">${recent.map(trackCard).join('')}</div>` : ''}
       <h2 class="sec-t">Feito pra você<small>${mixes.length} playlists</small></h2>
       <div class="hrow">${mixes.map((p) => { const f = E.byId[p.tracks[0]] || T[0]; return `<div class="card" data-pl="${p.id}" role="button" tabindex="0"><div class="artw">${thumb(f, 'art')}<span class="hov"><button data-playpl="${p.id}" aria-label="tocar playlist"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></span></div><p class="ct">${esc(p.name)}</p><p class="cs">${p.tracks.length} songs</p></div>`; }).join('')}</div>
       <h2 class="sec-t">Lançamentos</h2>
-      <div class="hrow">${LIB.ALBUMS.map((a) => { const f = E.byId[a.tracks[0]]; return `<div class="card" data-album="${a.id}" role="button" tabindex="0"><div class="artw">${thumb(f, 'art')}</div><p class="ct">${esc(a.title)}</p><p class="cs">${esc(a.artist)} · ${a.year}</p></div>`; }).join('')}</div>`;
+      <div class="hrow">${LIB.ALBUMS.map((a) => { const f = E.byId[a.tracks[0]]; return `<div class="card" data-album="${a.id}" role="button" tabindex="0"><div class="artw">${thumb(f, 'art')}</div><p class="ct">${esc(a.title)}</p><p class="cs">${esc(a.artist)} · ${a.year}</p></div>`; }).join('')}</div>
+      <h2 class="sec-t">Mais do nuwget</h2>
+      <div class="hrow">
+        <div class="card" data-artist="nuwget" role="button" tabindex="0"><div class="artw">${thumb(T[0], 'art')}</div><p class="ct">nuwget</p><p class="cs">artista</p></div>
+        <div class="card" data-pl="liked" role="button" tabindex="0"><div class="artw">${thumb(T[2], 'art')}</div><p class="ct">Liked Songs</p><p class="cs">${E.store.likes.length} favoritas</p></div>
+        <div class="card" data-go="#/settings" role="button" tabindex="0"><div class="artw">${thumb(T[3], 'art')}</div><p class="ct">Áudio & qualidade</p><p class="cs">configurações</p></div>
+      </div>`;
   }
 
   let searchQ = '';
+  function recentQ() { try { return JSON.parse(localStorage.getItem('bearify.q') || '[]'); } catch { return []; } }
+  function pushQ(q) { q = q.trim(); if (!q) return; try { localStorage.setItem('bearify.q', JSON.stringify([q, ...recentQ().filter((x) => x !== q)].slice(0, 6))); } catch {} }
   function vSearch() {
     view.innerHTML = `<h1 class="hello">Buscar</h1><p class="sub">Songs, artistas, álbuns e playlists do ecossistema nuwget.</p>
       <div class="searchbar"><input id="q" type="search" placeholder="O que você quer ouvir?" value="${esc(searchQ)}" aria-label="buscar"></div><div id="sres"></div>`;
-    const q = $('q'); q.focus(); q.addEventListener('input', () => { searchQ = q.value; renderSearch(); });
+    const q = $('q'); q.focus();
+    q.addEventListener('input', () => { searchQ = q.value; renderSearch(); });
+    q.addEventListener('keydown', (e) => { if (e.key === 'Enter') { pushQ(q.value); renderSearch(); } });
     renderSearch();
   }
   function renderSearch() {
     const box = $('sres'); if (!box) return;
     const s = searchQ.trim().toLowerCase();
-    if (!s) { box.innerHTML = `<div class="empty"><b>Explore o catálogo</b>Digite para buscar nas songs do nuwget.</div>`; return; }
+    if (!s) {
+      const rq = recentQ();
+      box.innerHTML = rq.length
+        ? `<h2 class="sec-t">Buscas recentes</h2><div class="chips">${rq.map((x) => `<button data-qchip="${esc(x)}">${esc(x)}</button>`).join('')}</div>`
+        : `<div class="empty"><b>Explore o catálogo</b>Digite para buscar nas songs do nuwget.</div>`;
+      return;
+    }
     const hits = T.filter((t) => (t.title + ' ' + t.artist + ' ' + t.album).toLowerCase().includes(s));
     const albs = LIB.ALBUMS.filter((a) => (a.title + ' ' + a.artist).toLowerCase().includes(s));
     const arts = LIB.ARTISTS.filter((a) => a.name.toLowerCase().includes(s));
@@ -348,6 +375,7 @@ window.UI = (() => {
     else vHome();
     renderSide();
     $('view').scrollTop = 0;
+    view.classList.remove('enter'); void view.offsetWidth; view.classList.add('enter');
   }
   function renderSide() {
     const box = $('sidePlaylists');
@@ -355,6 +383,17 @@ window.UI = (() => {
   }
 
   /* ---------------- dock ---------------- */
+  let qToken = 0;
+  async function syncQuality() {
+    const my = ++qToken;
+    const tr = E.queue.current(); if (!tr) return;
+    const sources = await E.quality.probe(tr);
+    if (my !== qToken) return;
+    E.quality.withKbps(sources, durations[tr.id]);
+    const best = sources[0]?.kbps || 0;
+    const label = best >= 280 ? 'Muito alta' : best >= 140 ? 'Alta' : best > 0 ? 'Normal' : sources[0]?.label || 'HiFi';
+    $('btnQuality').innerHTML = `<b>${label}</b><small>${best ? '~' + best + ' kbps' : esc(sources[0]?.ext || '')}</small>`;
+  }
   function syncDock() {
     const tr = E.queue.current(); if (!tr) return;
     $('nowTitle').textContent = tr.title; $('nowArtist').textContent = tr.artist;
@@ -397,7 +436,7 @@ window.UI = (() => {
       if (!e.target.closest('#ctx') && !q('[data-more]')) closeCtx();
       if ((m = q('[data-like]'))) { e.stopPropagation(); const on = E.store.toggleLike(m.dataset.like); toast(on ? 'Adicionada aos favoritos 💚' : 'Removida dos favoritos'); refreshLikes(); }
       else if ((m = q('[data-more]'))) { e.stopPropagation(); const r = m.getBoundingClientRect(); openCtx(r.left, r.bottom + 6, E.byId[m.dataset.more]); }
-      else if ((m = q('[data-play]'))) { const id = m.dataset.play; if (E.queue.order.includes(id)) E.queue.idx = E.queue.order.indexOf(id); else E.queue.set(E.queue.list, id); E.player.load(E.byId[id], { autoplay: true }); openNPIfMobile(); }
+      else if ((m = q('[data-play]'))) { if (e.target.closest('#sres')) pushQ(searchQ); const id = m.dataset.play; if (E.queue.order.includes(id)) E.queue.idx = E.queue.order.indexOf(id); else E.queue.set(E.queue.list, id); E.player.load(E.byId[id], { autoplay: true }); openNPIfMobile(); }
       else if ((m = q('[data-playq]'))) { E.queue.idx = +m.dataset.playq; E.player.load(E.queue.current(), { autoplay: true }); }
       else if ((m = q('[data-playpl]'))) { e.stopPropagation(); const p = findPlaylist(m.dataset.playpl); E.queue.set(p.tracks, p.tracks[0]); E.player.load(E.queue.current(), { autoplay: true }); }
       else if ((m = q('[data-playalbum]'))) { const a = LIB.ALBUMS.find((x) => x.id === m.dataset.playalbum); E.queue.set(a.tracks, a.tracks[0]); E.player.load(E.queue.current(), { autoplay: true }); }
@@ -408,6 +447,8 @@ window.UI = (() => {
       else if ((m = q('[data-gotoalbum]'))) location.hash = '#/album/' + m.dataset.gotoalbum;
       else if ((m = q('[data-artist]'))) location.hash = '#/artist/' + m.dataset.artist;
       else if ((m = q('[data-seekto]'))) E.player.el.currentTime = +m.dataset.seekto;
+      else if ((m = q('[data-go]'))) location.hash = m.dataset.go;
+      else if ((m = q('[data-qchip]'))) { searchQ = m.dataset.qchip; vSearch(); }
       else if ((m = q('[data-lib]'))) { libTab = m.dataset.lib; vLibrary(); }
       else if ((m = q('[data-chip]'))) { libFilter = m.dataset.chip; vLibrary(); }
       else if ((m = q('[data-newpl]'))) {
@@ -469,7 +510,7 @@ window.UI = (() => {
     document.querySelectorAll('.np-tabs button').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('.np-tabs button').forEach((x) => x.classList.toggle('on', x === b)); syncNP(b.dataset.tab); }));
     $('npArtist').addEventListener('click', () => { $('np').hidden = true; location.hash = '#/artist/' + E.queue.current().artistId; });
     // engine events
-    E.bus.on('track', () => { syncDock(); renderQueue(); if (!$('np').hidden) syncNP(); });
+    E.bus.on('track', () => { syncDock(); syncQuality(); renderQueue(); if (!$('np').hidden) syncNP(); });
     E.bus.on('queue', renderQueue);
     E.bus.on('status', ({ status, message }) => {
       document.body.classList.toggle('playing', status === 'playing');
