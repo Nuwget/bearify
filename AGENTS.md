@@ -24,7 +24,7 @@ Guidelines for coding agents working in this repo.
 | `js/world.js` | `World`: the scene, reactive to levels |
 | `js/app.js` | player, track list, analysis, eq |
 | `data/tracks.js` | local track catalog |
-| `media/` | `track.m4a`, `track.mp3` |
+| `media/` | faixas do nuwget (.m4a) |
 | `tools/transcribe.py` | Whisper transcription (utility) |
 
 ## Run

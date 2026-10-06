@@ -2,7 +2,7 @@
 
 **[abrir no ar](https://nuwget.github.io/bearify/)** · <https://nuwget.github.io/bearify/>
 
-Um player no estilo Spotify rodando por cima de uma cena pixelada à noite: chuva, o urso de fones no parapeito e a cidade reagindo à música. A cena é desenhada em canvas sem blur nenhum e reage à música: os fogos de artifício, as janelas da cidade e o halo da lua acompanham os graves, médios e agudos.
+Um player no estilo Spotify, exclusivo do nuwget (songs), rodando por cima de uma cena pixelada à noite: chuva, o urso de fones no parapeito e a cidade reagindo à música. A cena é desenhada em canvas sem blur nenhum e reage à música: os fogos de artifício, as janelas da cidade e o halo da lua acompanham os graves, médios e agudos.
 
 Letra e música com IA.
 
@@ -23,7 +23,7 @@ Letra e música com IA.
 | `js/art.js` | sprites, luzes e ferramentas de pixel art |
 | `js/app.js` | player, lista de faixas e análise |
 | `data/tracks.js` | catálogo local de faixas |
-| `media/` | `track.m4a` e `track.mp3` |
+| `media/` | `welcome-to-your-past.m4a`, `in-the-blue.m4a`, `just-a-little-more-time.m4a`, `silentreminante.m4a` |
 | `tools/transcribe.py` | transcrição com Whisper (utilitário) |
 
 ## Desenvolvimento
