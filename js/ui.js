@@ -655,10 +655,21 @@ window.UI = (() => {
 
   function openNPIfMobile() { if (matchMedia('(max-width: 860px)').matches) openNP('lyrics'); }
 
+  const isStandalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isIOSSafari = isIOS && /Safari/.test(navigator.userAgent) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(navigator.userAgent);
+  function openIOSInstall() {
+    if (!isIOSSafari || isStandalone || localStorage.getItem('bearify.iosInstallSeen')) return;
+    openModal(`<button class="iconbtn mclose" data-x aria-label="fechar">✕</button><h2>Leve o Bearify com você 🐻</h2><p class="msub">Adicione à Tela de Início para abrir como app, sem o Safari no meio.</p><div class="mrow"><div>1. Toque em <b>Compartilhar</b> no Safari</div></div><div class="mrow"><div>2. Toque em <b>Adicionar à Tela de Início</b></div></div><div class="mrow"><div>3. Se aparecer, ative <b>Abrir como App da Web</b></div></div><button class="btn-play" data-x>Entendi</button>`);
+    localStorage.setItem('bearify.iosInstallSeen', '1');
+  }
+  window.__bearifyIsStandalone = isStandalone;
+  window.__bearifyIsIOS = isIOS;
   function init() {
     bind();
     renderVol();
     if (window.__boot) window.__boot.done();
+    setTimeout(openIOSInstall, 1200);
     probeDurations();
     E.queue.set(T.map((t) => t.id), T[0].id);
     window.CURRENT = 0;
