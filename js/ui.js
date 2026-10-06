@@ -54,8 +54,19 @@ window.UI = (() => {
     </div>`;
   }
 
-  function hero(kind, title, meta, i) {
-    return `<div class="hero"><canvas class="big cov" data-i="${i}" width="32" height="32"></canvas>
+  function plTheme(p) {
+    return { liked: 'heart', 'pl-sessions': 'collage', 'pl-madrugada': 'madrugada', 'pl-mare': 'mare', 'pl-ouvindo': 'resume' }[p.id] || null;
+  }
+  function plThumb(p, cls = 'thumb') {
+    const th = plTheme(p);
+    if (th) return `<canvas class="cov ${cls}" data-theme="${th}" width="32" height="32" aria-hidden="true"></canvas>`;
+    return thumb(E.byId[p.tracks[0]] || T[0], cls);
+  }
+  function hero(kind, title, meta, i, theme) {
+    const art = theme
+      ? `<canvas class="big cov" data-theme="${theme}" width="32" height="32"></canvas>`
+      : `<canvas class="big cov" data-i="${i}" width="32" height="32"></canvas>`;
+    return `<div class="hero">${art}
       <div><p class="hk">${kind}</p><h1>${esc(title)}</h1><p class="hm">${meta}</p></div></div>`;
   }
 
@@ -84,7 +95,7 @@ window.UI = (() => {
       <div class="quick">${T.map((tr) => `<button class="qcard" data-play="${tr.id}">${thumb(tr)}<span>${esc(tr.title)}</span><span class="mini-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></button>`).join('')}</div>
       ${recent.length ? `<h2 class="sec-t">Tocadas recentemente</h2><div class="hrow">${recent.map(trackCard).join('')}</div>` : ''}
       <h2 class="sec-t">Feito pra você<small>${mixes.length} playlists</small></h2>
-      <div class="hrow">${mixes.map((p) => { const f = E.byId[p.tracks[0]] || T[0]; return `<div class="card" data-pl="${p.id}" role="button" tabindex="0"><div class="artw">${thumb(f, 'art')}<span class="hov"><button data-playpl="${p.id}" aria-label="tocar playlist"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></span></div><p class="ct">${esc(p.name)}</p><p class="cs">${p.tracks.length} songs</p></div>`; }).join('')}</div>
+      <div class="hrow">${mixes.map((p) => `<div class="card" data-pl="${p.id}" role="button" tabindex="0"><div class="artw">${plThumb(p, 'art')}<span class="hov"><button data-playpl="${p.id}" aria-label="tocar playlist"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></span></div><p class="ct">${esc(p.name)}</p><p class="cs">${p.tracks.length} songs</p></div>`).join('')}</div>
       <h2 class="sec-t">Lançamentos</h2>
       <div class="hrow">${LIB.ALBUMS.map((a) => { const f = E.byId[a.tracks[0]]; return `<div class="card" data-album="${a.id}" role="button" tabindex="0"><div class="artw">${thumb(f, 'art')}</div><p class="ct">${esc(a.title)}</p><p class="cs">${esc(a.artist)} · ${a.year}</p></div>`; }).join('')}</div>
       <h2 class="sec-t">Mais do nuwget</h2>
@@ -127,7 +138,7 @@ window.UI = (() => {
       ${hits.length ? `<h2 class="sec-t">Songs</h2>${hits.map((t, i) => trackRow(t, i + 1)).join('')}` : ''}
       ${albs.length ? `<h2 class="sec-t">Álbuns</h2><div class="hrow">${albs.map((a) => { const f = E.byId[a.tracks[0]]; return `<div class="card" data-album="${a.id}"><div class="artw">${thumb(f, 'art')}</div><p class="ct">${esc(a.title)}</p><p class="cs">${esc(a.artist)}</p></div>`; }).join('')}</div>` : ''}
       ${arts.length ? `<h2 class="sec-t">Artistas</h2><div class="hrow">${arts.map((a) => `<div class="card" data-artist="${a.id}"><div class="artw">${thumb(T[0], 'art')}</div><p class="ct">${esc(a.name)}</p><p class="cs">artista</p></div>`).join('')}</div>` : ''}
-      ${pls.length ? `<h2 class="sec-t">Playlists</h2>${pls.map((p) => `<div class="trow" data-pl="${p.id}"><span class="num">▤</span>${thumb(E.byId[p.tracks[0]] || T[0])}<span class="tt"><b>${esc(p.name)}</b><span>playlist · ${p.tracks.length} songs</span></span><span></span><span></span></div>`).join('')}` : ''}`;
+      ${pls.length ? `<h2 class="sec-t">Playlists</h2>${pls.map((p) => `<div class="trow" data-pl="${p.id}"><span class="num">▤</span>${plThumb(p)}<span class="tt"><b>${esc(p.name)}</b><span>playlist · ${p.tracks.length} songs</span></span><span></span><span></span></div>`).join('')}` : ''}`;
   }
 
   let libTab = 'playlists', libFilter = 'all';
@@ -151,7 +162,7 @@ window.UI = (() => {
       const ts = libTracks();
       b.innerHTML = ts.length ? ts.map((t, i) => trackRow(t, i + 1)).join('') : `<div class="empty"><b>Nada aqui</b>${libFilter === 'liked' ? 'Toque no coração de uma song para favoritá-la.' : 'Ouça algo primeiro.'}</div>`;
     } else if (libTab === 'playlists') {
-      b.innerHTML = `<div class="hrow" style="grid-auto-columns:200px;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));grid-auto-flow:row;">${allPlaylists().map((p) => { const f = E.byId[p.tracks[0]] || T[0]; return `<div class="card" data-pl="${p.id}"><div class="artw">${thumb(f, 'art')}</div><p class="ct">${esc(p.name)}</p><p class="cs">${p.tracks.length} songs</p></div>`; }).join('')}</div>
+      b.innerHTML = `<div class="hrow" style="grid-auto-columns:200px;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));grid-auto-flow:row;">${allPlaylists().map((p) => `<div class="card" data-pl="${p.id}"><div class="artw">${plThumb(p, 'art')}</div><p class="ct">${esc(p.name)}</p><p class="cs">${p.tracks.length} songs</p></div>`).join('')}</div>
       <div style="margin-top:14px"><button class="btn-ghost" data-newpl>Criar playlist</button></div>`;
     } else if (libTab === 'albums') {
       b.innerHTML = LIB.ALBUMS.map((a) => { const ts = a.tracks.map((id) => E.byId[id]); return hero('Álbum', a.title, `<b>${esc(a.artist)}</b> · ${a.year} · ${ts.length} songs`, idx(ts[0].id)) + `<div class="actions"><button class="btn-play" data-playalbum="${a.id}"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Tocar</button><button class="btn-ghost" data-gotoalbum="${a.id}">Abrir álbum</button></div>`; }).join('');
@@ -183,7 +194,7 @@ window.UI = (() => {
     const p = findPlaylist(id); if (!p) return vHome();
     const ts = p.tracks.map((x) => E.byId[x]).filter(Boolean);
     const total = ts.reduce((s, t) => s + (durations[t.id] || 0), 0);
-    view.innerHTML = hero('Playlist', p.name, `${esc(p.desc || '')} · ${ts.length} songs${total ? ' · ' + fmt(total) : ''}`, idx((ts[0] || T[0]).id)) + `
+    view.innerHTML = hero('Playlist', p.name, `${esc(p.desc || '')} · ${ts.length} songs${total ? ' · ' + fmt(total) : ''}`, idx((ts[0] || T[0]).id), plTheme(p)) + `
       <div class="actions"><button class="btn-play" data-playpl="${p.id}"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Tocar</button>
       ${p.id.startsWith('user-') ? `<button class="btn-ghost" data-delpl="${p.id}">Excluir</button>` : ''}</div>
       ${ts.length ? ts.map((t, i) => trackRow(t, i + 1)).join('') : `<div class="empty"><b>Playlist vazia</b>Adicione songs pelo menu ··· de qualquer faixa.</div>`}`;
@@ -389,7 +400,7 @@ window.UI = (() => {
   }
   function renderSide() {
     const box = $('sidePlaylists');
-    box.innerHTML = '<p class="lib-t">Playlists</p>' + allPlaylists().slice(0, 8).map((p) => { const f = E.byId[p.tracks[0]] || T[0]; return `<button class="pl" data-pl="${p.id}">${thumb(f)}<span>${esc(p.name)}</span></button>`; }).join('');
+    box.innerHTML = '<p class="lib-t">Playlists</p>' + allPlaylists().slice(0, 8).map((p) => `<button class="pl" data-pl="${p.id}">${plThumb(p)}<span>${esc(p.name)}</span></button>`).join('');
   }
 
   /* ---------------- dock ---------------- */
