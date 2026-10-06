@@ -365,3 +365,12 @@ canvas.cov { image-rendering: pixelated; display: block; }
   .hrow { grid-auto-columns: 162px; }
   .hero canvas.big { width: 140px; height: 140px; }
 }
+
+/* pass 2: touch — sem hover, controles sempre visíveis */
+@media (hover: none) {
+  .qcard .mini-play { opacity: 1; }
+  .card .hov { opacity: 1; background: linear-gradient(0deg, rgba(5,3,15,.45), transparent 60%); }
+  .trow .acts { opacity: 1; }
+  .trow .num span { display: none; }
+  .trow .num button { display: block; }
+}
