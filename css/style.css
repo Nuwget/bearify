@@ -33,8 +33,13 @@ a { color: inherit; }
 
 /* ---------- sidebar ---------- */
 .side { background: var(--panel); backdrop-filter: blur(8px); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 12px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
-.brand { font-weight: 900; font-size: 22px; letter-spacing: -.03em; text-decoration: none; padding: 0 12px; display: flex; flex-direction: column; line-height: 1; color: #fff; }
-.brand span { font-size: 10px; font-weight: 700; letter-spacing: .28em; text-transform: uppercase; color: var(--acc-2); margin-top: 4px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 22px; letter-spacing: -.03em; text-decoration: none; padding: 0 8px; line-height: 1; color: #fff; }
+.brand-t { display: flex; flex-direction: column; }
+.brand-t span { font-size: 10px; font-weight: 700; letter-spacing: .28em; text-transform: uppercase; color: var(--acc-2); margin-top: 4px; }
+#mascotBear { width: 46px; height: 52px; image-rendering: pixelated; flex: none; }
+.lamp-widget { position: fixed; right: 16px; top: 42%; z-index: 1; pointer-events: none; animation: sway 5s ease-in-out infinite; transform-origin: top center; }
+.lamp-widget canvas { width: 34px; height: 65px; image-rendering: pixelated; filter: drop-shadow(0 0 14px rgba(255, 180, 90, .45)); }
+@keyframes sway { 0%, 100% { transform: rotate(-2.5deg); } 50% { transform: rotate(2.5deg); } }
 .nav { display: flex; flex-direction: column; gap: 2px; }
 .nav a { display: flex; align-items: center; gap: 14px; padding: 10px 12px; border-radius: 8px; color: var(--mut); text-decoration: none; font-weight: 700; transition: .15s; }
 .nav a svg { width: 20px; height: 20px; fill: currentColor; flex: none; }
@@ -246,6 +251,7 @@ canvas.cov { image-rendering: pixelated; display: block; }
   .vol-row #vol { width: 70px; }
 }
 @media (max-width: 860px) {
+  .lamp-widget { display: none; }
   .app { grid-template-columns: 1fr; height: calc(100% - var(--dock-h) - 60px); }
   .side { display: none; }
   .main { padding: 16px 14px calc(var(--dock-h) + 8px); }

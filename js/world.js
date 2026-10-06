@@ -1,7 +1,8 @@
 /* The night window. Everything is drawn crisp on a tiny canvas (no blur) and scaled by whole pixels.
    Sprites and light sprites come from art.js. Beats from window.Levels drive fireworks, windows, moon halo.
    Depth, back to front: sky, moon, clouds, far2 / far / mid / near skyline with haze between, wires, rain,
-   curtains, wet ledge with puddles, the bear lit by the lamp, a sparse foreground rain. */
+   curtains, wet ledge with puddles and a sparse foreground rain.
+   (The bear and the lamp live in the UI now as mascots — see js/mascots.js.) */
 (() => {
   const cv = document.getElementById('scene');
   const ctx = cv.getContext('2d');
@@ -566,52 +567,6 @@
     for (const lf of leaves) {
       lf.x += lf.v * dt * (reduce ? 0.2 : 1); if (lf.x > W - curtW) lf.x = curtW;
       ctx.fillStyle = lf.c; ctx.fillRect(Math.round(lf.x), Math.round(lf.y), 2, 1); ctx.fillRect(Math.round(lf.x) + 1, Math.round(lf.y) - 1, 1, 1);
-    }
-
-    /* ---------- the lamp and the light it throws ---------- */
-    const flick = (Math.sin(t * 9) > 0.93 || beat) ? 1 : 0;
-    const lx = lampP.x, ly = lampP.y;
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.drawImage(sprites.pool[flick], lx - 30, baseY - 5);                    // warm pool on the wet stone
-    ctx.drawImage(sprites.cone[flick], Math.round(lx - sprites.cone[0].width / 2), ly + 3);
-    ctx.drawImage(sprites.halo[flick], lx - 40, ly - 34);
-    ctx.globalCompositeOperation = 'source-over';
-    reflect(sprites.lamp, pos.lamp.x, baseY + 1, t, 0.3, 8);                    // lamp reflection streak
-    for (let k = 0; k < 8; k++) { ctx.fillStyle = `rgba(255,190,100,${0.35 - k * 0.04})`; ctx.fillRect(lx - 1 + Math.round(Math.sin(t * 3 + k) * 1), baseY + 1 + k, 2, 1); }
-    ctx.drawImage(sprites.lamp, pos.lamp.x, pos.lamp.y);
-    ctx.globalCompositeOperation = 'lighter'; ctx.drawImage(sprites.core, lx - 6, ly - 4); ctx.globalCompositeOperation = 'source-over';
-
-    // contact and cast shadows on the stone (light comes from the left, so shadows lean right)
-    ctx.fillStyle = 'rgba(4,2,20,.5)';
-    const sh = (cx, rx, ry) => { for (let dy = -ry; dy <= ry; dy++) { const hw = Math.round(rx * Math.sqrt(1 - (dy / (ry + 0.5)) ** 2)); ctx.fillRect(cx - hw, baseY + dy + 1, hw * 2, 1); } };
-    sh(pos.dBody.x + 19 + 6, 24, 2); sh(lampP.x + 2, 8, 1);
-
-    reflect(sprites.dBody, pos.dBody.x, baseY + 1, t, 0.26, 8);
-
-    /* ---------- characters ---------- */
-    bPhase += dt;
-    const breathe = reduce ? 0 : (Math.sin(bPhase * 1.5) > 0.15 ? 1 : 0);
-    if (secs > blinkAt) { blinkUntil = secs + 0.14; blinkAt = secs + 2.6 + rr() * 3.4; }
-    if (secs > glanceAt) { glanceUntil = secs + 1.4; glanceAt = secs + 5 + rr() * 6; }
-    if (secs > earAt) { earUntil = secs + 0.22; earSide = rr() < 0.5 ? 0 : 1; earAt = secs + 4 + rr() * 5; }
-    bob += ((!reduce && bass > 0.4 ? 1 : 0) - bob) * Math.min(1, dt * 22);
-    const fk = 0.75 + flick * 0.25;
-    const draw = (cvs, litc, p, dx, dy) => { ctx.drawImage(cvs, p.x + (dx || 0), p.y + (dy || 0)); if (litc) { ctx.globalAlpha = fk; ctx.drawImage(litc, p.x + (dx || 0), p.y + (dy || 0)); ctx.globalAlpha = 1; } };
-
-    // the bear: body, ears, head with headphones, a glance towards the moon now and then
-    draw(sprites.dBody, lit.dBody, pos.dBody, 0, 0);
-    const dj = secs < earUntil && earSide === 0 ? 1 : 0;
-    draw(sprites.dEar, lit.dEarL, pos.dEarL, -dj, breathe - Math.round(bob) - dj);
-    draw(sprites.dEar, lit.dEarR, pos.dEarR, 0, breathe - Math.round(bob));
-    const di = secs < blinkUntil ? 1 : secs < glanceUntil ? 2 : 0;
-    draw(sprites.dHead[di], lit.dHead[di], pos.dHead, 0, breathe - Math.round(bob));
-
-    // dust drifting inside the lamp's cone
-    for (const d of dust) {
-      const k = (d.u + (reduce ? 0 : t * 0.02 * d.s)) % 1, y = ly + 4 + k * 28, spread = 4 + k * 22;
-      const x = lx + (d.v - 0.5) * 2 * spread + Math.sin(t * 0.7 + d.ph) * 2;
-      if (Math.sin(t * d.s + d.ph) < -0.2) continue;
-      ctx.fillStyle = Math.sin(t * d.s * 2 + d.ph) > 0.4 ? '#fff0c8' : '#ffc27a'; ctx.fillRect(Math.round(x), Math.round(y), 1, 1);
     }
 
     // sparse foreground rain in front of everything: long, bright, quick
