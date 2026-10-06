@@ -223,6 +223,8 @@ window.UI = (() => {
     const sw = (k, label, sub, dis) => `<div class="mrow"><div>${label}<small>${sub}</small></div><button class="switch" data-pref="${k}" aria-checked="${p[k]}" ${dis ? 'disabled' : ''} role="switch"></button></div>`;
     view.innerHTML = `<h1 class="hello">Configurações</h1><p class="sub">Áudio, reprodução e atalhos.</p>
       <h2 class="sec-t">Qualidade de áudio</h2><div id="qTiers"></div>
+      <h2 class="sec-t">Performance</h2>
+      <div class="mrow"><div>Modo visual<small>${E.isIOS || FX.mobile ? 'mobile começa em equilibrado' : 'full = todos os efeitos'}</small></div><div class="optgrid" style="grid-template-columns:repeat(3,1fr);min-width:240px;">${['full', 'balanced', 'battery'].map((v) => `<button data-perf="${v}" class="${FX.perf === v ? 'on' : ''}">${{ full: 'Full', balanced: 'Equilibrado', battery: 'Economia' }[v]}</button>`).join('')}</div></div>
       <h2 class="sec-t">Reprodução</h2>
       <div class="mrow"><div>Crossfade<small>emenda real entre faixas</small></div><div class="optgrid" style="grid-template-columns:repeat(4,1fr);min-width:220px;">${[0, 2, 4, 6].map((s) => `<button data-xf="${s}" class="${p.crossfade === s ? 'on' : ''}">${s === 0 ? 'Off' : s + 's'}</button>`).join('')}</div></div>
       ${E.isIOS ? '<p class="sub">No iPhone o crossfade fica desligado de propósito: confiabilidade primeiro.</p>' : ''}
@@ -256,15 +258,18 @@ window.UI = (() => {
     if (!tr?.lyrics?.length) return `<div class="lyr-empty"><p class="lyr-k">Lyrics</p><p class="lyr-big">Let the music speak.</p><p class="lyr-sub">sinta a cena — ela reage à música 🐻</p></div>`;
     return tr.lyrics.map((l, i) => `<button class="lyr" data-seekto="${l.t}">${esc(l.text)}</button>`).join('');
   }
+  let lastLyr = -2, lastLyrId = '';
   function paintLyrics(time) {
     const tr = E.queue.current(); if (!tr?.lyrics?.length) return;
     const k = E.lyrics.active(tr, time);
+    if (k === lastLyr && lastLyrId === tr.id) return;
+    lastLyr = k; lastLyrId = tr.id;
     document.querySelectorAll('#npLyrics .lyr, #songLyrics .lyr').forEach((b, i) => {
       b.classList.toggle('on', i === k);
       b.classList.toggle('past', i < k);
     });
     const on = document.querySelector('#npLyrics .lyr.on');
-    if (on) on.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    if (on && !$('np').hidden) on.scrollIntoView({ block: 'center' });
   }
 
   /* ---------------- now playing ---------------- */
@@ -473,21 +478,31 @@ window.UI = (() => {
       $('npVol').addEventListener('input', (e) => E.player.setVolume(e.target.value / 100));
     }
   }
+  let tickN = 0, lastSec = -1;
   function onTick(el) {
     const d = el.duration || durations[E.queue.current()?.id] || 0, ct = el.currentTime || 0;
     const frac = d ? ct / d : 0;
-    $('seek').value = frac * 1000;
-    $('seekFill').style.width = frac * 100 + '%';
+    tickN++;
+    const sec = Math.floor(ct);
+    if (sec !== lastSec) {
+      lastSec = sec;
+      $('tCur').textContent = fmt(ct); $('tDur').textContent = fmt(d);
+      if (!$('np').hidden) { $('npCur').textContent = fmt(ct); $('npDur').textContent = fmt(d); }
+    }
+    if (tickN % 3 !== 0) { paintLyrics(ct); return; } // texto/letra a 60, barra a 20fps
+    if (document.activeElement !== $('seek')) $('seek').value = frac * 1000;
+    $('seekFill').style.setProperty('--p', frac.toFixed(4));
     $('seekHead').style.left = frac * 100 + '%';
-    $('tCur').textContent = fmt(ct); $('tDur').textContent = fmt(d);
-    const ns = $('npSeek'); if (ns && !$('np').hidden) { ns.value = frac * 1000; $('npSeekFill').style.width = frac * 100 + '%'; $('npSeekHead').style.left = frac * 100 + '%'; $('npCur').textContent = fmt(ct); $('npDur').textContent = fmt(d); }
+    const ns = $('npSeek');
+    if (ns && !$('np').hidden) {
+      if (document.activeElement !== ns) ns.value = frac * 1000;
+      $('npSeekFill').style.setProperty('--p', frac.toFixed(4));
+      $('npSeekHead').style.left = frac * 100 + '%';
+    }
     paintLyrics(ct);
     // crossfade: agenda a troca antes do fim (desligado no iOS)
     const cf = E.effCrossfade();
     if (cf > 0 && d && d - ct < cf && d - ct > 0.2 && !el.paused && !onTick._cf) { onTick._cf = true; E.player.next(true).finally(() => (onTick._cf = false)); }
-    // capa grande do now playing
-    const np = $('npCover');
-    if (!$('np').hidden && window.Covers) window.Covers.draw(np, E.queue.current(), idx(E.queue.current().id), performance.now() / 1000);
   }
 
   /* ---------------- eventos globais ---------------- */
@@ -531,6 +546,7 @@ window.UI = (() => {
         E.player.setSource(tr, pick.url, pick.type);
         closeModal(); renderQualityTiers($('qTiers')); toast('Qualidade: ' + m.dataset.q);
       }
+      else if ((m = q('[data-perf]'))) { FX.setPerf(m.dataset.perf); vSettings(); }
       else if ((m = q('[data-xf]'))) { const p = E.store.prefs; p.crossfade = +m.dataset.xf; E.store.prefs = p; vSettings(); toast('Crossfade: ' + (p.crossfade ? p.crossfade + 's' : 'off')); }
       else if ((m = q('[data-pref]'))) { const p = E.store.prefs; const k = m.dataset.pref; p[k] = !p[k]; E.store.prefs = p; m.setAttribute('aria-checked', String(p[k])); }
       else if ((m = q('[data-qrm]'))) { e.stopPropagation(); E.queue.remove(+m.dataset.qrm); renderQueue(); }
