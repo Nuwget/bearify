@@ -541,8 +541,6 @@ body.loading .trow.on .num span { display: none; }
 .modal { animation: modalIn .22s ease both; }
 @keyframes modalIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
 .modal-wrap { animation: fadeUp .2s ease both; }
-.about-art { display: grid; place-items: center; margin-bottom: 6px; }
-.about-art canvas { width: 120px; height: 120px; border-radius: 14px; image-rendering: pixelated; box-shadow: 0 14px 44px rgba(0,0,0,.55), 0 0 50px rgba(143,108,240,.3); }
 .about-k { text-align: center; margin: 12px 0 2px; }
 .modal h2 { text-align: center; font-size: 26px; }
 .about-t { font-size: 14px; line-height: 1.75; color: #d9d3f2; margin: 12px 0; }
@@ -598,3 +596,16 @@ body.loading .trow.on .num span { display: none; }
 body.lowfx .ambient { animation: none; opacity: .7; }
 body.lowfx .lamp-widget { animation: none; }
 @media (max-width: 860px) { #bootBear { width: 168px; height: 112px; } }
+
+/* ============ about editorial ============ */
+.modal { width: min(640px, 94vw); }
+.about-hero canvas { width: 100%; height: auto; aspect-ratio: 2/1; border-radius: 12px; image-rendering: pixelated; box-shadow: 0 14px 44px rgba(0,0,0,.55), 0 0 60px rgba(91,59,176,.35); }
+.about-sub { text-align: center; color: #d9d3f2; font-size: 14px; margin: 4px 0 14px; }
+.about-flow { display: flex; align-items: stretch; justify-content: center; gap: 8px; margin: 6px 0 4px; }
+.about-flow div { flex: 1; text-align: center; background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.08); border-radius: 10px; padding: 10px 4px; display: flex; flex-direction: column; gap: 2px; }
+.about-flow b { font-size: 13px; letter-spacing: .12em; }
+.about-flow span { font-size: 11px; color: var(--mut); }
+.about-flow i { align-self: center; color: var(--acc); font-style: normal; font-weight: 900; }
+.about-block { border-top: 1px dotted rgba(143,108,240,.4); margin-top: 12px; padding-top: 10px; }
+.about-h { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--acc-2); font-weight: 800; margin-bottom: 5px; }
+.about-block p:last-child { font-size: 13.5px; line-height: 1.7; color: #d9d3f2; }

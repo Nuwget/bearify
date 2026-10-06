@@ -376,13 +376,20 @@ window.UI = (() => {
     renderQualityTiers($('mQ'));
   }
   function openAbout() {
-    openModal(`<div class="about-art"><canvas class="cov" data-theme="collage" width="32" height="32"></canvas></div>
-      <p class="msub about-k">O universo por trás do Bearify</p><h2>Quem é Nuwget?</h2>
-      <p class="about-t">Nuwget é o artista por trás do catálogo do Bearify — um espaço criado para reunir suas songs em um streaming próprio.</p>
-      <p class="about-t">Aqui, música e tecnologia caminham juntas: as músicas e letras fazem parte de um processo criativo com participação de IA e de seus agentes.</p>
-      <p class="about-t">O Bearify nasceu como esse pequeno universo: um lugar para ouvir, descobrir e viver as songs do Nuwget com uma experiência feita especialmente para elas.</p>
+    const playing = document.body.classList.contains('playing');
+    openModal(`<div class="about-hero"><canvas class="cov" data-theme="nuwget" data-wide width="64" height="32"></canvas></div>
+      <p class="msub about-k">O universo por trás do Bearify</p><h2>O universo Nuwget</h2>
+      <p class="about-sub">Songs, IA e um pequeno universo feito para ouvir.</p>
+      <div class="about-flow">
+        <div><b>NUWGET</b><span>artist</span></div><i>↓</i>
+        <div><b>SONGS</b><span>music + AI</span></div><i>↓</i>
+        <div><b>BEARIFY</b><span>streaming</span></div>
+      </div>
+      <div class="about-block"><p class="about-h">O que é</p><p>Nuwget é o nome por trás do catálogo do Bearify: um pequeno universo musical criado para reunir suas songs em uma experiência própria de streaming.</p></div>
+      <div class="about-block"><p class="about-h">Música + IA</p><p>As músicas e letras fazem parte de um processo criativo com uso de inteligência artificial — parte da identidade do próprio projeto.</p></div>
+      <div class="about-block"><p class="about-h">Bearify</p><p>O Bearify existe para transformar esse catálogo em uma experiência completa de escuta: músicas, letras, álbuns, playlists e uma atmosfera visual própria.</p></div>
       <p class="about-sign">BEARIFY · NUWGET SONGS<br><span>made with heart 💜</span></p>
-      <button class="btn-play" data-about-play><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Ouvir agora</button>`);
+      <button class="btn-play" data-about-play><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> ${playing ? 'Voltar para a música' : 'Ouvir as songs'}</button>`);
   }
   function openDevices() {
     openModal(`<button class="iconbtn mclose" data-x aria-label="fechar">✕</button><h2>Dispositivos</h2><p class="msub">Saída de áudio.</p>
@@ -528,7 +535,7 @@ window.UI = (() => {
       else if ((m = q('[data-pref]'))) { const p = E.store.prefs; const k = m.dataset.pref; p[k] = !p[k]; E.store.prefs = p; m.setAttribute('aria-checked', String(p[k])); }
       else if ((m = q('[data-qrm]'))) { e.stopPropagation(); E.queue.remove(+m.dataset.qrm); renderQueue(); }
       else if ((m = q('[data-about]'))) openAbout();
-      else if ((m = q('[data-about-play]'))) { closeModal(); location.hash = '#/home'; const a = LIB.ALBUMS[0]; E.queue.set(a.tracks, a.tracks[0]); E.player.load(E.queue.current(), { autoplay: true }); }
+      else if ((m = q('[data-about-play]'))) { closeModal(); if (document.body.classList.contains('playing')) { openNP('lyrics'); } else { location.hash = '#/home'; const a = LIB.ALBUMS[0]; E.queue.set(a.tracks, a.tracks[0]); E.player.load(E.queue.current(), { autoplay: true }); } }
       else if ((m = q('[data-x]')) || e.target.id === 'modalWrap') closeModal();
       else if ((m = q('[data-lyrics]'))) openNP('lyrics');
       else if ((m = q('[data-songinfo]'))) openSongInfo(E.byId[m.dataset.songinfo]);

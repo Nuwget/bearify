@@ -244,7 +244,45 @@ window.Covers = (() => {
     for (let i = 0; i < 3; i++) { const x = r() * n, y = (r() * n + t * 8) % n; g.fillStyle = 'rgba(255,150,180,.6)'; g.fillRect(x, y, 1, 1); }
   }
 
-  const THEMES = { past, blue, time, silent, madrugada, mare, collage, resume, heart };
+  /* -------- NUWGET: ilustração do universo (wide 64x32) --------
+     urso observando a cidade da janela — só p/ apresentação, nunca capa. */
+  function nuwget(g, w, h, t, seed) {
+    const r = rng(seed), e = E();
+    for (let y = 0; y < h; y++) { g.fillStyle = y < 14 ? '#0b0722' : y < 24 ? '#1c1448' : '#07041a'; g.fillRect(0, y, w, 1); }
+    // janela panorâmica à esquerda
+    g.fillStyle = '#05030f'; g.fillRect(2, 2, 38, 24);
+    g.fillStyle = '#0d1440'; g.fillRect(3, 3, 36, 22);
+    for (let i = 0; i < 8; i++) { const x = 4 + r() * 34, y = 4 + r() * 10; if (Math.sin(t * 1.1 + i * 2.4) > -0.4) { g.fillStyle = '#c9baff'; g.fillRect(x, y, 1, 1); } }
+    g.fillStyle = 'rgba(255,217,138,.25)'; g.fillRect(28, 4, 9, 9);
+    g.fillStyle = '#ffd98a'; g.fillRect(30, 6, 5, 5);
+    for (let x = 4; x < 38; x += 6) {
+      const bh = 4 + Math.floor(r() * 7);
+      g.fillStyle = '#141040'; g.fillRect(x, 25 - bh, 5, bh);
+      if (r() < 0.7) { g.fillStyle = Math.sin(t * 0.7 + x * 3) > 0 ? '#ffd98a' : '#4a3a9a'; g.fillRect(x + 1, 26 - bh, 1, 1); g.fillRect(x + 3, 26 - bh + 2, 1, 1); }
+    }
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      g.fillStyle = 'rgba(170,180,255,.5)';
+      for (let i = 0; i < 12; i++) { const x = (r() * 36 + t * 24 + i * 9) % 36, y = 3 + ((r() * 22 + t * 52 + i * 13) % 22); g.fillRect(3 + x, y, 1, 2); }
+    }
+    g.fillStyle = '#05030f'; g.fillRect(20, 3, 1, 22); g.fillRect(3, 13, 36, 1);
+    // luminária quente no meio
+    g.fillStyle = `rgba(255,170,80,${0.3 + e * 0.25})`; g.fillRect(41, 16, 5, 5);
+    g.fillStyle = '#ffb86b'; g.fillRect(43, 18, 2, 2);
+    g.fillStyle = '#241a5e'; g.fillRect(42, 21, 3, 8);
+    // o urso sentado à direita, observando (pisca)
+    const blink = (t % 3.7) < 0.15;
+    const sm = g.imageSmoothingEnabled; g.imageSmoothingEnabled = false;
+    try {
+      const earC = Art.bearEar().canvas(), headC = (blink ? Art.bearHead(true, false) : Art.bearHead(false, false)).canvas(), bodyC = Art.bearBody().canvas();
+      g.drawImage(bodyC, 47, 20, 13, 8);
+      g.drawImage(earC, 47, 11, 5, 5); g.drawImage(earC, 55, 11, 5, 5);
+      g.drawImage(headC, 45, 12, 17, 13);
+    } catch { /* Art ainda carregando: silhueta */ }
+    g.imageSmoothingEnabled = sm;
+    g.fillStyle = '#05030f'; g.fillRect(0, 28, w, 4);
+  }
+
+  const THEMES = { past, blue, time, silent, madrugada, mare, collage, resume, heart, nuwget };
 
   function themeFor(track, i) {
     const t = ((track && track.title) || '').toLowerCase();
@@ -256,11 +294,15 @@ window.Covers = (() => {
 
   function draw(c, track, i, t) {
     if (!c) return;
-    const n = 32; if (c.width !== n) { c.width = n; c.height = n; }
+    const wide = c.dataset && c.dataset.wide != null;
+    const W = wide ? 64 : 32, H = 32;
+    if (c.width !== W || c.height !== H) { c.width = W; c.height = H; }
     const g = c.getContext('2d');
     const key = (c.dataset && c.dataset.theme && THEMES[c.dataset.theme]) ? c.dataset.theme : themeFor(track, i);
-    g.clearRect(0, 0, n, n);
-    THEMES[key](g, n, t, 1000 + i * 77 + key.length * 13);
+    g.clearRect(0, 0, W, H);
+    const seed = 1000 + i * 77 + key.length * 13;
+    if (key === 'nuwget') THEMES.nuwget(g, W, H, t, seed);
+    else THEMES[key](g, 32, t, seed);
   }
 
   // tempo próprio: avança com o playback, quase congela no pause
