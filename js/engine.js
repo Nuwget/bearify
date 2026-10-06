@@ -102,7 +102,7 @@ window.Engine = (() => {
   /* ---------------- PlaybackEngine: 2 elementos p/ crossfade real ---------------- */
   const els = [new Audio(), new Audio()];
   els.forEach((a) => { a.preload = 'auto'; a.playsInline = true; });
-  let active = 0, wantPlay = false, status = 'idle', fadeTimer = null, switchHandler = null;
+  let active = 0, wantPlay = false, status = 'idle', fadeTimer = null;
   const A = () => els[active], B = () => els[1 - active];
 
   const player = {

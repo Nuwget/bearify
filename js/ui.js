@@ -397,7 +397,7 @@ window.UI = (() => {
       if (!e.target.closest('#ctx') && !q('[data-more]')) closeCtx();
       if ((m = q('[data-like]'))) { e.stopPropagation(); const on = E.store.toggleLike(m.dataset.like); toast(on ? 'Adicionada aos favoritos 💚' : 'Removida dos favoritos'); refreshLikes(); }
       else if ((m = q('[data-more]'))) { e.stopPropagation(); const r = m.getBoundingClientRect(); openCtx(r.left, r.bottom + 6, E.byId[m.dataset.more]); }
-      else if ((m = q('[data-play]'))) { const tr = E.byId[m.dataset.play]; E.queue.set(E.queue.list, tr.id); E.player.load(tr, { autoplay: true }); openNPIfMobile(); }
+      else if ((m = q('[data-play]'))) { const id = m.dataset.play; if (E.queue.order.includes(id)) E.queue.idx = E.queue.order.indexOf(id); else E.queue.set(E.queue.list, id); E.player.load(E.byId[id], { autoplay: true }); openNPIfMobile(); }
       else if ((m = q('[data-playq]'))) { E.queue.idx = +m.dataset.playq; E.player.load(E.queue.current(), { autoplay: true }); }
       else if ((m = q('[data-playpl]'))) { e.stopPropagation(); const p = findPlaylist(m.dataset.playpl); E.queue.set(p.tracks, p.tracks[0]); E.player.load(E.queue.current(), { autoplay: true }); }
       else if ((m = q('[data-playalbum]'))) { const a = LIB.ALBUMS.find((x) => x.id === m.dataset.playalbum); E.queue.set(a.tracks, a.tracks[0]); E.player.load(E.queue.current(), { autoplay: true }); }

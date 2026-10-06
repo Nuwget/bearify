@@ -18,13 +18,17 @@ Guidelines for coding agents working in this repo.
 
 | Path | What |
 | --- | --- |
-| `index.html` | page shell, gate, player markup |
-| `css/style.css` | night theme, dock, responsive |
-| `js/art.js` | pixel toolkit (`Art`) + bear sprites |
-| `js/world.js` | `World`: the scene, reactive to levels |
-| `js/app.js` | player, track list, analysis, eq |
-| `data/tracks.js` | local track catalog |
-| `media/` | faixas do nuwget (.m4a) |
+| `index.html` | app shell: sidebar, views, premium dock, now playing, drawers, modals |
+| `css/style.css` | design system, dock, now playing, mobile |
+| `js/art.js` | pixel toolkit (`Art`) + bear/lamp sprites |
+| `js/mascots.js` | mini bear (marca) + lamp (lateral), animados via Levels |
+| `js/covers.js` | capas pixeladas animadas por faixa (`Covers`) |
+| `js/world.js` | cena noturna reativa (`Levels`: fogos, janelas, halo) |
+| `js/engine.js` | `Engine`: playback (2 audios p/ crossfade), fila, qualidade real, letras, store |
+| `js/ui.js` | `UI`: rotas, telas, fila, letra sincronizada, menus, modais |
+| `js/app.js` | bootstrap: tap de análise, atalhos, loop Levels+dock |
+| `data/tracks.js` | catálogo local (ids, letras sincronizadas) |
+| `data/library.js` | artista, álbum e playlists derivados do catálogo |
 | `tools/transcribe.py` | Whisper transcription (utility) |
 
 ## Run

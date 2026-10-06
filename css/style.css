@@ -259,13 +259,14 @@ canvas.cov { image-rendering: pixelated; display: block; }
   .np-body { grid-template-columns: 1fr; overflow-y: auto; padding: 10px 20px 30px; }
   .np-artwrap canvas { max-width: 340px; margin: 0 auto; }
   .dock { grid-template-columns: 1fr auto; grid-template-areas: 'now ctrl' 'seek seek'; gap: 4px 10px; padding: 8px 12px; }
-  .now { grid-area: now; } .center { grid-area: seek; } .center .transport { display: none; }
+  .now { grid-area: now; } .center { grid-area: seek; }
+  .center .transport { gap: 2px; } .center .transport .tbtn { width: 26px; height: 26px; } .center .transport .play { width: 32px; height: 32px; }
   .vol-row { grid-area: ctrl; } .vol-row #vol, .vol-row #btnDevices, .vol-row #btnLyrics { display: none; }
   .mnav { display: flex; position: fixed; left: 0; right: 0; bottom: var(--dock-h); z-index: 19; background: rgba(8,6,18,.94); border-top: 1px solid var(--line); }
   .mnav a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px; color: var(--mut); text-decoration: none; font-size: 10px; font-weight: 700; }
   .mnav a svg { width: 20px; height: 20px; fill: currentColor; }
   .mnav a.on { color: #fff; }
-  :root { --dock-h: 132px; }
+  :root { --dock-h: 158px; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .01s !important; transition-duration: .01s !important; }
