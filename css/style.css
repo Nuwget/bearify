@@ -11,7 +11,7 @@
   --grn: #1ed760;
   --gold: #ffd98a;
   --r: 12px;
-  --dock-h: 96px;
+  --dock-h: 104px;
   --font: 'Inter', system-ui, -apple-system, sans-serif;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -270,4 +270,98 @@ canvas.cov { image-rendering: pixelated; display: block; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .01s !important; transition-duration: .01s !important; }
+}
+
+/* ================= polish pass: escala, hierarquia, movimento ================= */
+.hello { font-size: 34px; }
+.sec-t { font-size: 22px; }
+
+/* hero em destaque */
+.fhero { position: relative; display: flex; gap: 26px; align-items: center; padding: 26px; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); margin: 6px 0 8px;
+  background: linear-gradient(100deg, rgba(91,59,176,.55), rgba(176,98,182,.3) 55%, rgba(10,7,22,.7)); }
+.fhero::before { content: ''; position: absolute; inset: -60px; background: radial-gradient(45% 65% at 76% 42%, rgba(176,98,182,.5), transparent 70%); pointer-events: none; }
+.fhero .fh { width: 190px; height: 190px; border-radius: 12px; image-rendering: pixelated; box-shadow: 0 20px 60px rgba(0,0,0,.6); position: relative; flex: none; }
+.fhero .fmeta { position: relative; min-width: 0; }
+.fhero .fk { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); font-weight: 800; }
+.fhero h2 { font-size: clamp(30px, 4vw, 46px); font-weight: 900; letter-spacing: -.03em; line-height: 1.02; margin: 6px 0; }
+.fhero .fm { color: #d9d3f2; font-size: 14px; margin-bottom: 16px; }
+
+/* cards maiores, menos glass */
+.hrow { grid-auto-columns: 190px; gap: 16px; }
+.card { padding: 16px; background: rgba(20, 15, 42, .72); border-color: rgba(255,255,255,.06); }
+.card:hover { background: rgba(30, 22, 60, .85); }
+.card .ct { font-size: 15px; }
+.quick { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.qcard { font-size: 14px; }
+.qcard canvas { width: 60px; height: 60px; }
+
+/* faixas com mais presença */
+.trow { grid-template-columns: 32px 48px 1fr auto auto; padding: 9px 12px; }
+.trow canvas.thumb { width: 48px; height: 48px; }
+.trow .tt b { font-size: 15px; }
+
+/* sidebar premium */
+.side { padding: 20px 14px; gap: 18px; }
+.brand { font-size: 24px; padding: 0 10px; }
+#mascotBear { width: 50px; height: 56px; }
+.nav a { padding: 12px; }
+.nav a.on { background: rgba(143, 108, 240, .22); box-shadow: inset 0 0 0 1px rgba(143,108,240,.35); }
+.nav a.on svg { fill: #fff; }
+.pl { padding: 9px 12px; }
+.pl.on { background: rgba(30, 215, 96, .1); }
+
+/* dock com presença */
+.dock { box-shadow: 0 -14px 44px rgba(0,0,0,.55); padding: 12px 20px; }
+.cover { width: 64px; height: 64px; }
+.now-t .t { font-size: 15px; }
+.play { width: 46px; height: 46px; }
+.play svg { width: 19px; height: 19px; }
+.tbtn { width: 34px; height: 34px; }
+.time { font-size: 12px; min-width: 38px; }
+.seek { height: 16px; }
+.seek input[type="range"] { height: 5px; }
+.seek:hover input[type="range"] { height: 7px; }
+.seek-fill { height: 5px; }
+.seek:hover .seek-fill { height: 7px; }
+.qbadge { display: flex; flex-direction: column; align-items: center; line-height: 1.25; padding: 6px 10px; }
+.qbadge small { font-weight: 600; font-size: 9px; color: #a895f0; letter-spacing: .04em; }
+
+/* now playing cinematográfico */
+.np { animation: npIn .28s ease; }
+@keyframes npIn { from { opacity: 0; } to { opacity: 1; } }
+.np-t { font-size: 34px; }
+.np-artwrap canvas { border-radius: 16px; }
+.lyr { font-size: 18px; padding: 8px 12px; }
+.lyr.on { font-size: 22px; }
+
+/* drawer deslizante */
+.drawer { animation: slideIn .22s ease; }
+@keyframes slideIn { from { transform: translateX(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* entrada das páginas */
+.main.enter > * { animation: rise .3s both; }
+.main.enter > *:nth-child(2) { animation-delay: .04s; }
+.main.enter > *:nth-child(3) { animation-delay: .08s; }
+.main.enter > *:nth-child(4) { animation-delay: .12s; }
+.main.enter > *:nth-child(5) { animation-delay: .16s; }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* favorito com pop */
+.iconbtn.loved svg { animation: pop .25s ease; }
+@keyframes pop { 0% { transform: scale(.6); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
+
+/* busca com presença */
+.searchbar input { max-width: 520px; padding: 14px 22px; font-size: 15px; background: rgba(255,255,255,.1); }
+.searchbar input:focus { border-color: var(--acc); background: rgba(255,255,255,.14); }
+
+/* hero de álbum/artista maior */
+.hero canvas.big { width: 210px; height: 210px; }
+
+@media (max-width: 860px) {
+  .fhero { flex-direction: column; text-align: center; padding: 20px; }
+  .fhero .fh { width: 170px; height: 170px; }
+  .fhero .actions { justify-content: center; }
+  .hello { font-size: 27px; }
+  .hrow { grid-auto-columns: 162px; }
+  .hero canvas.big { width: 140px; height: 140px; }
 }
