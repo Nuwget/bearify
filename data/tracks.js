@@ -12,15 +12,15 @@ window.TRACKS = [
     year: 2026,
     base: 'media/welcome-to-your-past',
     lyrics: [
-      { t: 0.0, end: 14.0, text: 'Welcome to your past' },
-      { t: 19.0, end: 22.0, text: 'I remember' },
-      { t: 22.0, end: 30.0, text: 'I remember' },
-      { t: 46.0, end: 50.0, text: 'Take me back' },
-      { t: 52.0, end: 59.2, text: 'Mm, take me back' },
-      { t: 59.2, end: 68.8, text: 'ooh · ooh · ooh' },
-      { t: 68.8, end: 76.8, text: 'Mm, do you remember?' },
-      { t: 106.8, end: 120.32, text: 'Welcome to your house' },
-      { t: 136.8, end: 165.8, text: 'Welcome to your past' },
+      { t: 0.0, end: 14.0, text: 'Welcome to your past', translation: 'Bem-vindo ao seu passado' },
+      { t: 19.0, end: 22.0, text: 'I remember', translation: 'Eu me lembro' },
+      { t: 22.0, end: 30.0, text: 'I remember', translation: 'Eu me lembro' },
+      { t: 46.0, end: 50.0, text: 'Take me back', translation: 'Leve-me de volta' },
+      { t: 52.0, end: 59.2, text: 'Mm, take me back', translation: 'Mm, leve-me de volta' },
+      { t: 59.2, end: 68.8, text: 'ooh · ooh · ooh', translation: 'ooh · ooh · ooh' },
+      { t: 68.8, end: 76.8, text: 'Mm, do you remember?', translation: 'Mm, você se lembra?' },
+      { t: 106.8, end: 120.32, text: 'Welcome to your house', translation: 'Bem-vindo à sua casa' },
+      { t: 136.8, end: 165.8, text: 'Welcome to your past', translation: 'Bem-vindo ao seu passado' },
     ],
   },
   {
@@ -36,57 +36,57 @@ window.TRACKS = [
     {
         "t": 52.84,
         "end": 59.0,
-        "text": "I'm still awake in the blue"
+        "text": "I'm still awake in the blue", "translation": "Ainda estou acordado no azul"
     },
     {
         "t": 59.22,
         "end": 69.06,
-        "text": "Ooh, ooh, ooh, ooh"
+        "text": "Ooh, ooh, ooh, ooh", "translation": "Ooh, ooh, ooh, ooh"
     },
     {
         "t": 69.06,
         "end": 72.54,
-        "text": "I remember"
+        "text": "I remember", "translation": "Eu me lembro"
     },
     {
         "t": 73.22,
         "end": 78.62,
-        "text": "Ooh, ooh, ooh, ooh"
+        "text": "Ooh, ooh, ooh, ooh", "translation": "Ooh, ooh, ooh, ooh"
     },
     {
         "t": 78.62,
         "end": 81.64,
-        "text": "Nothing to say"
+        "text": "Nothing to say", "translation": "Nada a dizer"
     },
     {
         "t": 81.64,
         "end": 88.12,
-        "text": "Just breathe"
+        "text": "Just breathe", "translation": "Apenas respire"
     },
     {
         "t": 93.16,
         "end": 101.3,
-        "text": "For a moment, I'm alright"
+        "text": "For a moment, I'm alright", "translation": "Por um momento, estou bem"
     },
     {
         "t": 112.6,
         "end": 119.24,
-        "text": "Mmm, mmm, mmm, mmm, mmm"
+        "text": "Mmm, mmm, mmm, mmm, mmm", "translation": "Mmm, mmm, mmm, mmm, mmm"
     },
     {
         "t": 119.24,
         "end": 124.48,
-        "text": "What does it feel?"
+        "text": "What does it feel?", "translation": "Como se sente?"
     },
     {
         "t": 173.06,
         "end": 180.18,
-        "text": "Let it fade"
+        "text": "Let it fade", "translation": "Deixe desaparecer"
     },
     {
         "t": 191.64,
         "end": 194.76,
-        "text": "Let it fade"
+        "text": "Let it fade", "translation": "Deixe desaparecer"
     }
 ],
   },
@@ -375,7 +375,7 @@ window.TRACKS = [
     {
         "t": 52.14,
         "end": 58.68,
-        "text": "Ooh, ooh, ooh, ooh"
+        "text": "Ooh, ooh, ooh, ooh", "translation": "Ooh, ooh, ooh, ooh"
     },
     {
         "t": 75.0,

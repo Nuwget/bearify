@@ -281,7 +281,7 @@ window.UI = (() => {
   /* ---------------- letras ---------------- */
   function lyricsHtml(tr) {
     if (!tr?.lyrics?.length) return `<div class="lyr-empty"><p class="lyr-k">Lyrics</p><p class="lyr-big">Let the music speak.</p><p class="lyr-sub">sinta a cena — ela reage à música 🐻</p></div>`;
-    return tr.lyrics.map((l, i) => `<button class="lyr" data-seekto="${l.t}">${esc(l.text)}</button>`).join('');
+    return tr.lyrics.map((l, i) => `<button class="lyr" data-seekto="${l.t}"><span class="lyr-orig">${esc(l.text)}</span>${l.translation ? `<span class="lyr-tr">${esc(l.translation)}</span>` : ''}</button>`).join('');
   }
   let lastLyr = -2, lastLyrId = '';
   function paintLyrics(time) {
