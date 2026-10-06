@@ -100,13 +100,27 @@ window.UI = (() => {
       </div>`;
   }
 
+  function mHome() {
+    const alb = LIB.ALBUMS[0];
+    const recent = E.store.recent.map((id) => E.byId[id]).filter(Boolean);
+    view.innerHTML = `
+      <div class="mtop"><span class="mbrand">bearify<small>nuwget songs</small></span><a class="iconbtn big" href="#/search" aria-label="buscar"><svg viewBox="0 0 24 24"><path d="M10 2a8 8 0 1 0 4.9 14.3l5.4 5.4 1.4-1.4-5.4-5.4A8 8 0 0 0 10 2zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12z"/></svg></a></div>
+      <div class="mfeat">${thumb(E.byId[alb.tracks[0]], 'art')}
+        <div><p class="mf-t">${esc(alb.title)}</p><p class="mf-s">${esc(alb.artist)} · ${alb.year} · ${alb.tracks.length} songs</p>
+        <button class="btn-play" data-playalbum="${alb.id}"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Tocar</button></div></div>
+      <h2 class="sec-t">Songs</h2>
+      ${T.map((t, i) => trackRow(t, i + 1)).join('')}
+      ${recent.length ? `<h2 class="sec-t">Continue ouvindo</h2><div class="hrow">${recent.map(trackCard).join('')}</div>` : ''}
+      <div class="mabout"><button class="btn-ghost" data-about>Quem é Nuwget?</button></div>`;
+  }
+
   let searchQ = '';
   function recentQ() { try { return JSON.parse(localStorage.getItem('bearify.q') || '[]'); } catch { return []; } }
   function pushQ(q) { q = q.trim(); if (!q) return; try { localStorage.setItem('bearify.q', JSON.stringify([q, ...recentQ().filter((x) => x !== q)].slice(0, 6))); } catch {} }
   function vSearch() {
     view.innerHTML = `<h1 class="hello">Buscar</h1><p class="sub">Songs, artistas, álbuns e playlists do ecossistema nuwget.</p>
       <div class="searchbar"><input id="q" type="search" placeholder="O que você quer ouvir?" value="${esc(searchQ)}" aria-label="buscar"></div><div id="sres"></div>`;
-    const q = $('q'); q.focus();
+    const q = $('q'); if (!(window.FX && FX.mobile)) q.focus();
     q.addEventListener('input', () => { searchQ = q.value; renderSearch(); });
     q.addEventListener('keydown', (e) => { if (e.key === 'Enter') { pushQ(q.value); renderSearch(); } });
     renderSearch();
@@ -416,7 +430,10 @@ window.UI = (() => {
     const [, r, arg] = h.split('/');
     closeCtx();
     document.querySelectorAll('#nav a, #mnav a').forEach((a) => a.classList.toggle('on', a.dataset.r === r));
-    if (r === 'search') vSearch();
+    const M = window.FX && FX.mobile;
+    if (r === 'home' && M) mHome();
+    else if (r === 'home') vHome();
+    else if (r === 'search') vSearch();
     else if (r === 'library') vLibrary();
     else if (r === 'album') vAlbum(arg);
     else if (r === 'artist') vArtist(arg);
@@ -603,7 +620,7 @@ window.UI = (() => {
     document.querySelectorAll('.np-tabs button').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('.np-tabs button').forEach((x) => x.classList.toggle('on', x === b)); $('np').classList.toggle('lyr', b.dataset.tab === 'lyrics'); const pn = document.querySelector('.np-panels'); pn.classList.remove('swap'); void pn.offsetWidth; pn.classList.add('swap'); syncNP(b.dataset.tab); }));
     $('npArtist').addEventListener('click', () => { $('np').hidden = true; location.hash = '#/artist/' + E.queue.current().artistId; });
     // engine events
-    E.bus.on('track', () => { syncDock(); syncQuality(); renderQueue(); if (!$('np').hidden) syncNP(); });
+    E.bus.on('track', () => { document.body.classList.add('played'); syncDock(); syncQuality(); renderQueue(); if (!$('np').hidden) syncNP(); });
     E.bus.on('queue', renderQueue);
     E.bus.on('status', ({ status, message }) => {
       document.body.classList.toggle('playing', status === 'playing');

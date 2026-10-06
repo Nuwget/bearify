@@ -86,6 +86,7 @@ window.__boot = (() => {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
   FX.add('boot', tick, 30);
-  setTimeout(() => { try { done(); } catch {} }, 5000);
+  setTimeout(() => { try { done(); } catch {} }, 1500);
+  addEventListener('load', () => { try { done(); } catch {} });
   return { stage, done };
 })();
