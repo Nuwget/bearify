@@ -9,7 +9,9 @@ Letra e música com IA.
 ## Como funciona
 
 - **Motor** (`js/engine.js`): playback com 2 elementos de áudio (crossfade real), fila com shuffle/repeat, qualidade detectada das fontes reais (sem opção fake), letras, favoritos/playlists/recentes em `localStorage`.
-- **UI** (`js/ui.js`): rotas `#/home #/search #/library #/album #/artist #/playlist #/song #/settings`, now playing com letra que acompanha a música, fila com reorder, menu de contexto, detalhes da faixa, dispositivos e qualidade.
+- **UI desktop** (`js/ui.js`): rotas `#/home #/search #/library #/album #/artist #/playlist #/song #/settings`, now playing com letra que acompanha a música, fila com reorder, menu de contexto, detalhes da faixa, dispositivos e qualidade.
+- **Letras PT/EN** (`js/lyrics.js`): cada linha tem um timestamp e dois idiomas (`{t, end, pt, en}`). Ambos, só Português ou só English (preferência salva); a linha atual acompanha a música nos dois idiomas, clicar numa linha faz seek, e o scroll automático para quando a música pausa. Desktop: duas colunas alinhadas. Mobile: PT e EN empilhados por linha.
+- **Mobile** (`js/mobile.js` + `css/mobile.css`, ≤860px): o mobile é um *site* no Safari, não um app — sem bottom nav, sem PWA. Home (destaque + músicas), mini player fixo, Now Playing limpo com letra em tela cheia, busca, biblioteca e um bottom sheet "Quem é Nuwget?". Compartilha com o desktop só dados e engine; sem cena, canvas pesado ou splash.
 - **Cena** (`js/world.js`): janela noturna em pixel art nítido, reativa via `window.Levels`.
 - **Mascotes** (`js/mascots.js`): urso e lamparina desenhados do `Art`, piscam e balançam no grave.
 - **Capas** (`js/covers.js`): uma capa pixelada animada por faixa, derivada do clima do título.
@@ -19,15 +21,18 @@ Letra e música com IA.
 
 | Caminho | O que é |
 | --- | --- |
-| `index.html` | app shell: sidebar, views, dock premium, now playing, drawers, modais |
-| `css/style.css` | design system, dock, now playing, mobile |
+| `index.html` | shell: desktop (sidebar, dock, now playing, drawers, modais) + raiz `#m` do mobile |
+| `css/style.css` | design system do desktop, letras compartilhadas |
+| `css/mobile.css` | camada mobile (carregada só em ≤860px) |
 | `js/engine.js` | playback, fila, qualidade real, letras, store |
-| `js/ui.js` | rotas, telas, fila, letra, menus, modais |
+| `js/ui.js` | desktop: rotas, telas, fila, now playing, menus, modais |
+| `js/mobile.js` | mobile: home, mini player, now playing, letra, busca, biblioteca, sheet |
+| `js/lyrics.js` | letras PT/EN compartilhadas (render, linha ativa, scroll, idioma) |
 | `js/app.js` | bootstrap: análise, atalhos, loop |
 | `js/mascots.js` | urso da marca + lamparina lateral |
 | `js/covers.js` | capas pixeladas animadas por faixa |
 | `js/world.js` | cena noturna reativa ao áudio |
-| `data/tracks.js` | catálogo local (com letra sincronizada quando existe) |
+| `data/tracks.js` | catálogo local (duração em `dur`, letra sincronizada quando existe) |
 | `data/library.js` | artista, álbum e playlists do catálogo |
 | `media/` | `welcome-to-your-past.m4a`, `in-the-blue.m4a`, `just-a-little-more-time.m4a`, `silentreminante.m4a` |
 | `tools/transcribe.py` | transcrição com Whisper (utilitário) |
@@ -41,7 +46,7 @@ make run          # atalho para o serve.sh
 
 Servidor local é necessário: o áudio e a análise não funcionam em `file://`.
 
-Para adicionar faixas, coloque os arquivos em `media/` e liste em `data/tracks.js` (com `lyrics: [{t, end, text}]` quando houver letra sincronizada).
+Para adicionar faixas, coloque os arquivos em `media/` e liste em `data/tracks.js` (com `dur` em segundos e `lyrics: [{t, end, pt, en}]` quando houver letra sincronizada; `pt`/`en` podem faltar numa linha — o site mostra só o que existe, sem inventar tradução).
 
 ## GitHub Pages
 
