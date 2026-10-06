@@ -166,7 +166,6 @@ window.Engine = (() => {
       nxt.innerHTML = ''; const sc = document.createElement('source'); sc.src = pick.url; sc.type = pick.type; nxt.appendChild(sc);
       nxt.volume = 0; nxt.currentTime = 0;
       window.CURRENT = T.indexOf(track); store.pushRecent(track.id); bus.emit('track', track);
-      queue; // índice já avançado por queue.next()
       try { await nxt.play(); } catch { return this.load(track, { autoplay: true }); }
       const steps = 20, dt = (secs * 1000) / steps, v0 = store.prefs.muted ? 0 : store.prefs.vol;
       let i = 0;
@@ -183,13 +182,15 @@ window.Engine = (() => {
   };
 
   function wireEvents(el) {
-    el.onwaiting = () => player.setStatus('buffering');
-    el.onstalled = () => player.setStatus('buffering');
-    el.onplaying = () => { player.setStatus('playing'); if ('mediaSession' in navigator && queue.current()) { const t = queue.current(); navigator.mediaSession.metadata = new MediaMetadata({ title: t.title, artist: t.artist, album: t.album }); } };
-    el.onpause = () => { if (!fadeTimer || !switchHandler) player.setStatus(A().ended ? status : 'paused'); };
-    el.oncanplay = () => { if (status === 'loading' || status === 'buffering') player.setStatus(A().paused ? 'paused' : 'playing'); };
-    el.onerror = () => player.setStatus('error', { message: 'falha ao carregar o áudio' });
+    const mine = () => el === A();
+    el.onwaiting = () => { if (mine()) player.setStatus('buffering'); };
+    el.onstalled = () => { if (mine()) player.setStatus('buffering'); };
+    el.onplaying = () => { if (!mine()) return; player.setStatus('playing'); if ('mediaSession' in navigator && queue.current()) { const t = queue.current(); navigator.mediaSession.metadata = new MediaMetadata({ title: t.title, artist: t.artist, album: t.album }); } };
+    el.onpause = () => { if (!mine() || A().ended) return; player.setStatus('paused'); };
+    el.oncanplay = () => { if (mine() && (status === 'loading' || status === 'buffering')) player.setStatus(A().paused ? 'paused' : 'playing'); };
+    el.onerror = () => { if (mine()) player.setStatus('error', { message: 'falha ao carregar o áudio' }); };
     el.onended = () => {
+      if (!mine()) return;
       // gapless: sem intervalo, já prepara o próximo
       if (store.prefs.crossfade > 0) return; // crossfade agenda antes do fim (ver tick)
       player.next(true);
@@ -207,5 +208,5 @@ window.Engine = (() => {
     },
   };
 
-  return { store, bus, quality, queue, player, lyrics, byId, fmt: (s) => { s = Math.max(0, Math.floor(isFinite(s) ? s : 0)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; } };
+  return { store, bus, quality, queue, player, lyrics, byId, elements: els, fmt: (s) => { s = Math.max(0, Math.floor(isFinite(s) ? s : 0)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; } };
 })();
